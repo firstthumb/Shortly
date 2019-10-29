@@ -3,6 +3,8 @@ import 'package:hive/hive.dart';
 import 'package:meta/meta.dart';
 import 'package:shortly/app/domain/entities/shorten.dart';
 
+part 'shorten_model.g.dart';
+
 const String shortenModelHiveName = "ShortenModelHive";
 
 @HiveType()

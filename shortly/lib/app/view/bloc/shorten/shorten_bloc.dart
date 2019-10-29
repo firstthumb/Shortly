@@ -15,7 +15,11 @@ class ShortenBloc extends Bloc<ShortenEvent, ShortenState> {
   });
 
   @override
-  ShortenState get initialState => Empty();
+//  ShortenState get initialState => Empty();
+  ShortenState get initialState =>
+      Loaded(shortens: [
+        Shorten(link: "Link", shortLink: "Short Link", fav: true)
+      ]);
 
   @override
   Stream<ShortenState> mapEventToState(ShortenEvent event) async* {
