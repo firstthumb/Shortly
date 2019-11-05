@@ -8,6 +8,8 @@ abstract class ShortenLocalDataSource {
   Future<List<ShortenModel>> getShortens();
 
   Future<ShortenModel> saveShorten(ShortenModel model);
+
+  void deleteShorten(String id);
 }
 
 class ShortenLocalDataSourceImpl implements ShortenLocalDataSource {
@@ -40,5 +42,11 @@ class ShortenLocalDataSourceImpl implements ShortenLocalDataSource {
     await shortenBox.put(id, savedModel);
     logger.v("Saved shorten => Model : $savedModel");
     return savedModel;
+  }
+
+  @override
+  void deleteShorten(String id) {
+    logger.v("Deleting shorten => Id : $id");
+    shortenBox.delete(id);
   }
 }

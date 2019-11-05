@@ -52,4 +52,25 @@ class ShortenRepositoryImpl implements ShortenRepository {
       return Left(ServerFailure());
     }
   }
+
+  @override
+  Future<Either<Failure, bool>> deleteShorten(Shorten shorten) async {
+    localDataSource.deleteShorten(shorten.id);
+    return Right(true);
+  }
+
+  @override
+  Future<Either<Failure, Shorten>> toggleFavShorten(Shorten shorten) async {
+    try {
+      final savedShortenModel = await localDataSource.saveShorten(
+          ShortenModel.fromEntity(Shorten(id: shorten.id,
+              link: shorten.link,
+              shortLink: shorten.shortLink,
+              fav: !shorten.fav)));
+      return Right(savedShortenModel.toEntity());
+    } on Error catch (e) {
+      logger.e("Could not toggle fav: $e");
+      return Left(LocalFailure());
+    }
+  }
 }
