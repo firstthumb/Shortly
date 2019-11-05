@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
+import 'package:logger/logger.dart';
 
 import 'app/view/page/home_page.dart';
 import 'di/injection_container.dart' as di;
 
 void main() async {
+  Logger.level = Level.verbose;
   await di.init();
   runApp(MainApp());
 }

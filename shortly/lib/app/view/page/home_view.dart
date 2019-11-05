@@ -1,5 +1,12 @@
 import 'package:beauty_textfield/beauty_textfield.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shortly/app/view/bloc/shorten/shorten_event.dart';
+import 'package:shortly/app/view/widgets/loading_widget.dart';
+
+import '../../domain/entities/shorten.dart';
+import '../bloc/blocs.dart';
+import '../bloc/shorten/shorten_bloc.dart';
 
 class HomeView extends StatefulWidget {
   @override
@@ -31,27 +38,45 @@ class _HomeViewState extends State<HomeView> {
               },
               onSubmitted: (d) {
                 print(d.length);
+
+                BlocProvider.of<ShortenBloc>(context)
+                    .dispatch(CreateShortenEvent(link: d));
               },
             ),
             Expanded(
-              child: _buildList(context),
+              child: BlocBuilder<ShortenBloc, ShortenState>(
+                builder: (context, state) {
+                  print("STATE : $state");
+
+                  if (state is Empty) {
+                    return Container();
+                  } else if (state is Loading) {
+                    return LoadingWidget();
+                  } else if (state is Loaded) {
+                    return _buildList(context, state.shortens);
+                  } else {
+                    return Container();
+                  }
+                },
+              ),
+//              child: _buildList(context),
             ),
           ],
         ));
   }
 
-  Widget _buildList(BuildContext context) {
+  Widget _buildList(BuildContext context, List<Shorten> shortens) {
     return ListView.builder(
         shrinkWrap: true,
-        itemCount: 10,
+        itemCount: shortens.length,
         itemBuilder: (context, index) {
           return Card(
             child: Column(
               children: <Widget>[
-                const ListTile(
+                ListTile(
                   leading: Icon(Icons.arrow_right),
-                  title: Text('www.google.com'),
-                  subtitle: Text('www.tikitok.kt/Wedr2'),
+                  title: Text("${shortens[index].link}"),
+                  subtitle: Text("${shortens[index].shortLink}"),
                 ),
                 ButtonTheme.bar(
                   child: ButtonBar(
@@ -76,4 +101,6 @@ class _HomeViewState extends State<HomeView> {
           );
         });
   }
+
+
 }

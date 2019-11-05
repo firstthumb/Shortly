@@ -22,7 +22,7 @@ class ShortenModel extends Equatable {
   final bool fav;
 
   ShortenModel({
-    @required this.id,
+    this.id,
     @required this.link,
     @required this.shortLink,
     @required this.fav
@@ -37,5 +37,18 @@ class ShortenModel extends Equatable {
         link: entity.link,
         shortLink: entity.shortLink,
         fav: entity.fav);
+  }
+
+  static ShortenModel fromJson(Map<String, dynamic> json) {
+    return ShortenModel(
+      link: json['url'],
+      shortLink: json['short_url'],
+      fav: false,
+    );
+  }
+
+  @override
+  String toString() {
+    return 'ShortenModel{id: $id, link: $link, shortLink: $shortLink, fav: $fav}';
   }
 }

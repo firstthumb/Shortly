@@ -11,6 +11,14 @@ class Empty extends ShortenState {}
 
 class Loading extends ShortenState {}
 
+class Created extends ShortenState {
+  final Shorten shorten;
+
+  Created({
+    @required this.shorten,
+  }) : super([shorten]);
+}
+
 class Loaded extends ShortenState {
   final List<Shorten> shortens;
 

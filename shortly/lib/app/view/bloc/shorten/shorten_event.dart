@@ -13,12 +13,11 @@ class GetShortenListEvent extends ShortenEvent {
   String toString() => "GetShortenListEvent{ }";
 }
 
-class AddShortenEvent extends ShortenEvent {
+class CreateShortenEvent extends ShortenEvent {
   final String link;
-  final String shortLink;
 
-  AddShortenEvent({this.link, this.shortLink}) : super([link, shortLink]);
+  CreateShortenEvent({this.link}) : super([link]);
 
   @override
-  String toString() => "AddShortenEvent{ link: $link, shortLink: $shortLink}";
+  String toString() => "CreateShortenEvent{ link: $link }";
 }

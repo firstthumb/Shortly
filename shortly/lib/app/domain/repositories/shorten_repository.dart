@@ -6,4 +6,6 @@ abstract class ShortenRepository {
   Future<Either<Failure, List<Shorten>>> getAllShortens();
 
   Future<Either<Failure, Shorten>> saveShorten(Shorten shorten);
+
+  Future<Either<Failure, Shorten>> createShorten(String url);
 }
