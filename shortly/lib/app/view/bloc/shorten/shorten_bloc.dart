@@ -16,17 +16,18 @@ class ShortenBloc extends Bloc<ShortenEvent, ShortenState> {
 
   final AddShortenUseCase addShorten;
   final GetShortenListUseCase getShortenList;
+  final DeleteShortenUseCase deleteShorten;
+  final ToggleFavShortenUseCase toggleFavShorten;
 
   ShortenBloc({
     @required this.addShorten,
     @required this.getShortenList,
+    @required this.deleteShorten,
+    @required this.toggleFavShorten,
   });
 
   @override
   ShortenState get initialState => Empty();
-
-//  ShortenState get initialState => Loaded(
-//      shortens: [Shorten(link: "Link", shortLink: "Short Link", fav: true)]);
 
   @override
   Stream<ShortenState> mapEventToState(ShortenEvent event) async* {
@@ -40,6 +41,8 @@ class ShortenBloc extends Bloc<ShortenEvent, ShortenState> {
       yield* _mapCreateShortenToState(
           await addShorten(AddShortenParam(link: event.link)));
       dispatch(GetShortenListEvent());
+    } else if (event is ToggleFavShortenEvent) {
+      yield* _mapToggleFavShortenToState(await toggleFavShorten(ToggleFavShortenParam(id: event.id)));
     }
   }
 
@@ -56,6 +59,14 @@ class ShortenBloc extends Bloc<ShortenEvent, ShortenState> {
     yield either.fold(
           (failure) => Error(message: "Create shorten failed : $failure"),
           (result) => Created(shorten: result),
+    );
+  }
+
+  Stream<ShortenState> _mapToggleFavShortenToState(Either<Failure, Shorten> either) async* {
+    logger.v("_mapToggleFavShortenToState");
+    yield either.fold(
+          (failure) => Error(message: "Toggle fav shorten failed : $failure"),
+          (result) => Toggled(),
     );
   }
 }

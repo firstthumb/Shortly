@@ -14,6 +14,16 @@ class HomeView extends StatefulWidget {
 }
 
 class _HomeViewState extends State<HomeView> {
+  double _scrollPixel;
+  ScrollController _controller;
+
+
+  @override
+  void initState() {
+    _controller = ScrollController();
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -54,6 +64,9 @@ class _HomeViewState extends State<HomeView> {
                     return LoadingWidget();
                   } else if (state is Loaded) {
                     return _buildList(context, state.shortens);
+                  } else if (state is Toggled) {
+                    _controller.jumpTo(_scrollPixel);
+                    return Container();
                   } else {
                     return Container();
                   }
@@ -67,6 +80,7 @@ class _HomeViewState extends State<HomeView> {
 
   Widget _buildList(BuildContext context, List<Shorten> shortens) {
     return ListView.builder(
+        controller: _controller,
         shrinkWrap: true,
         itemCount: shortens.length,
         itemBuilder: (context, index) {
@@ -91,7 +105,7 @@ class _HomeViewState extends State<HomeView> {
                       ),
                       FlatButton(
                         child: Icon(Icons.star_border),
-                        onPressed: () {},
+                        onPressed: () => _toggleFavShorten(context, shortens[index]),
                       ),
                     ],
                   ),
@@ -102,5 +116,14 @@ class _HomeViewState extends State<HomeView> {
         });
   }
 
+  void _toggleFavShorten(BuildContext context, Shorten shorten) {
+    setState(() {
+      _scrollPixel = Scrollable.of(context).position.pixels;
+    });
 
+    BlocProvider.of<ShortenBloc>(context)
+        .dispatch(ToggleFavShortenEvent(id: shorten.id));
+    
+    _controller.jumpTo(value)
+  }
 }
