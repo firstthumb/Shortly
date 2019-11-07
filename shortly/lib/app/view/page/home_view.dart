@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shortly/app/view/bloc/shorten/shorten_event.dart';
 import 'package:shortly/app/view/widgets/loading_widget.dart';
+import 'package:shortly/app/view/widgets/shorten_item.dart';
 
 import '../../domain/entities/shorten.dart';
 import '../bloc/blocs.dart';
@@ -14,9 +15,10 @@ class HomeView extends StatefulWidget {
 }
 
 class _HomeViewState extends State<HomeView> {
-  double _scrollPixel;
-  ScrollController _controller;
+  final GlobalKey<AnimatedListState> listKey = GlobalKey<AnimatedListState>();
 
+//  double _scrollPixel;
+  ScrollController _controller;
 
   @override
   void initState() {
@@ -50,7 +52,7 @@ class _HomeViewState extends State<HomeView> {
                 print(d.length);
 
                 BlocProvider.of<ShortenBloc>(context)
-                    .dispatch(CreateShortenEvent(link: d));
+                    .add(CreateShortenEvent(link: d));
               },
             ),
             Expanded(
@@ -65,65 +67,69 @@ class _HomeViewState extends State<HomeView> {
                   } else if (state is Loaded) {
                     return _buildList(context, state.shortens);
                   } else if (state is Toggled) {
-                    _controller.jumpTo(_scrollPixel);
+//                    _controller.jumpTo(_scrollPixel);
                     return Container();
                   } else {
                     return Container();
                   }
                 },
               ),
-//              child: _buildList(context),
             ),
           ],
         ));
   }
 
   Widget _buildList(BuildContext context, List<Shorten> shortens) {
-    return ListView.builder(
-        controller: _controller,
-        shrinkWrap: true,
-        itemCount: shortens.length,
-        itemBuilder: (context, index) {
-          return Card(
-            child: Column(
-              children: <Widget>[
-                ListTile(
-                  leading: Icon(Icons.arrow_right),
-                  title: Text("${shortens[index].link}"),
-                  subtitle: Text("${shortens[index].shortLink}"),
-                ),
-                ButtonTheme.bar(
-                  child: ButtonBar(
-                    children: <Widget>[
-                      FlatButton(
-                        child: Icon(Icons.content_copy),
-                        onPressed: () {},
-                      ),
-                      FlatButton(
-                        child: Icon(Icons.share),
-                        onPressed: () {},
-                      ),
-                      FlatButton(
-                        child: Icon(Icons.star_border),
-                        onPressed: () => _toggleFavShorten(context, shortens[index]),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          );
-        });
+    return AnimatedList(
+      key: listKey,
+      initialItemCount: shortens.length,
+      itemBuilder: (context, index, animation) {
+        print("Building item....");
+        return _buildItem(context, index, shortens, animation);
+      },
+    );
+//    return ListView.builder(
+//        controller: _controller,
+//        shrinkWrap: true,
+//        itemCount: shortens.length,
+//        itemBuilder: (context, index) {
+//          return ShortenItem(
+//            shorten: shortens[index],
+//            onToggle: () => _toggleFavShorten(context, shortens[index]),
+//          );
+//        });
+  }
+
+  Widget _buildItem(BuildContext context, index, List<Shorten> shortens,
+      Animation<double> animation) {
+    print("Creating SizeTransition");
+
+    final shorten = shortens[index];
+
+    return SizeTransition(
+      key: ValueKey<Shorten>(shorten),
+      axis: Axis.vertical,
+      sizeFactor: animation,
+      child: ShortenItem(
+        shorten: shorten,
+        onDelete: () => _deleteShorten(index, shortens),
+        onToggle: () => _toggleFavShorten(context, shorten),
+      ),
+    );
+  }
+
+  void _deleteShorten(int index, List<Shorten> shortens) {
+    var shorten = shortens.removeAt(index);
+
+    listKey.currentState.removeItem(
+      index,
+          (context, animation) => _buildItem(context, 0, [shorten], animation),
+      duration: Duration(microseconds: 6000),
+    );
   }
 
   void _toggleFavShorten(BuildContext context, Shorten shorten) {
-    setState(() {
-      _scrollPixel = Scrollable.of(context).position.pixels;
-    });
-
     BlocProvider.of<ShortenBloc>(context)
-        .dispatch(ToggleFavShortenEvent(id: shorten.id));
-    
-    _controller.jumpTo(value)
+        .add(ToggleFavShortenEvent(id: shorten.id));
   }
 }
