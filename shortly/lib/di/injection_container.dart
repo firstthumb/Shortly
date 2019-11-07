@@ -7,7 +7,6 @@ import 'package:shortly/app/data/datasources/shorten_remote_datasource.dart';
 import 'package:shortly/app/data/models/shorten_model.dart';
 import 'package:shortly/app/data/repositories/shorten_repository_impl.dart';
 import 'package:shortly/app/domain/repositories/shorten_repository.dart';
-import 'package:shortly/app/domain/usecases/get_shorten_list_usecase.dart';
 import 'package:shortly/app/domain/usecases/usecases.dart';
 import 'package:shortly/app/view/bloc/shorten/shorten_bloc.dart';
 
@@ -18,10 +17,10 @@ Future<void> init() async {
 
   // Initialize Hive
   Hive.init(appDir.path);
-  // Register TodoModelAdapter
+  // Register ShortenModelAdapter
   Hive.registerAdapter(ShortenModelAdapter(), 0);
 
-  // Open TodoModel Box
+  // Open ShortenModel Box
   final box = await Hive.openBox(shortenModelHiveName);
 
   // Hive
@@ -32,11 +31,15 @@ Future<void> init() async {
       ShortenBloc(
         addShorten: sl(),
         getShortenList: sl(),
+        deleteShorten: sl(),
+        toggleFavShorten: sl(),
       ));
 
   // Use cases
   sl.registerLazySingleton(() => AddShortenUseCase(repository: sl()));
   sl.registerLazySingleton(() => GetShortenListUseCase(repository: sl()));
+  sl.registerLazySingleton(() => ToggleFavShortenUseCase(repository: sl()));
+  sl.registerLazySingleton(() => DeleteShortenUseCase(repository: sl()));
 
   // Repositories
   sl.registerLazySingleton<ShortenRepository>(() =>

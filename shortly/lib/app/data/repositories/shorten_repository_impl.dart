@@ -54,16 +54,17 @@ class ShortenRepositoryImpl implements ShortenRepository {
   }
 
   @override
-  Future<Either<Failure, bool>> deleteShorten(Shorten shorten) async {
-    localDataSource.deleteShorten(shorten.id);
-    return Right(true);
+  Future<Either<Failure, String>> deleteShorten(String id) async {
+    localDataSource.deleteShorten(id);
+    return Right(id);
   }
 
   @override
-  Future<Either<Failure, Shorten>> toggleFavShorten(Shorten shorten) async {
+  Future<Either<Failure, Shorten>> toggleFavShorten(String id) async {
     try {
+      final shorten = await localDataSource.getShorten(id);
       final savedShortenModel = await localDataSource.saveShorten(
-          ShortenModel.fromEntity(Shorten(id: shorten.id,
+          ShortenModel.fromEntity(Shorten(id: id,
               link: shorten.link,
               shortLink: shorten.shortLink,
               fav: !shorten.fav)));

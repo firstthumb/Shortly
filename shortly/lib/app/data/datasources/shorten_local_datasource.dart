@@ -7,6 +7,8 @@ import 'package:uuid/uuid.dart';
 abstract class ShortenLocalDataSource {
   Future<List<ShortenModel>> getShortens();
 
+  Future<ShortenModel> getShorten(String id);
+
   Future<ShortenModel> saveShorten(ShortenModel model);
 
   void deleteShorten(String id);
@@ -48,5 +50,11 @@ class ShortenLocalDataSourceImpl implements ShortenLocalDataSource {
   void deleteShorten(String id) {
     logger.v("Deleting shorten => Id : $id");
     shortenBox.delete(id);
+  }
+
+  @override
+  Future<ShortenModel> getShorten(String id) async {
+    logger.v("Get shorten => Id : $id");
+    return shortenBox.get(id);
   }
 }

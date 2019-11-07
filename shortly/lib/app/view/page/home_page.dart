@@ -21,7 +21,7 @@ class HomePage extends StatelessWidget {
     return BlocProvider<ShortenBloc>(
       builder: (_) =>
       sl<ShortenBloc>()
-        ..dispatch(GetShortenListEvent()),
+        ..add(GetShortenListEvent()),
       child: HomeView(),
     );
   }

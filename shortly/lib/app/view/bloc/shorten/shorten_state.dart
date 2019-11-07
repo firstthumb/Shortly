@@ -27,6 +27,8 @@ class Loaded extends ShortenState {
   }) : super([shortens]);
 }
 
+class Toggled extends ShortenState {}
+
 class Error extends ShortenState {
   final String message;
 
