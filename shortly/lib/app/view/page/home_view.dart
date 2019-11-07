@@ -1,6 +1,8 @@
 import 'package:beauty_textfield/beauty_textfield.dart';
+import 'package:clipboard_manager/clipboard_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:share/share.dart';
 import 'package:shortly/app/view/bloc/shorten/shorten_event.dart';
 import 'package:shortly/app/view/widgets/loading_widget.dart';
 import 'package:shortly/app/view/widgets/shorten_item.dart';
@@ -17,15 +19,6 @@ class HomeView extends StatefulWidget {
 class _HomeViewState extends State<HomeView> {
   final GlobalKey<AnimatedListState> listKey = GlobalKey<AnimatedListState>();
 
-//  double _scrollPixel;
-  ScrollController _controller;
-
-  @override
-  void initState() {
-    _controller = ScrollController();
-    super.initState();
-  }
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -41,18 +34,16 @@ class _HomeViewState extends State<HomeView> {
               prefixIcon: Icon(
                 Icons.link,
               ),
-              placeholder: "Without Suffic Icon",
+              placeholder: "Write your URL",
               onTap: () {
                 print('Click');
               },
               onChanged: (t) {
                 print(t);
               },
-              onSubmitted: (d) {
-                print(d.length);
-
+              onSubmitted: (inputUrl) {
                 BlocProvider.of<ShortenBloc>(context)
-                    .add(CreateShortenEvent(link: d));
+                    .add(CreateShortenEvent(link: inputUrl));
               },
             ),
             Expanded(
@@ -84,26 +75,13 @@ class _HomeViewState extends State<HomeView> {
       key: listKey,
       initialItemCount: shortens.length,
       itemBuilder: (context, index, animation) {
-        print("Building item....");
         return _buildItem(context, index, shortens, animation);
       },
     );
-//    return ListView.builder(
-//        controller: _controller,
-//        shrinkWrap: true,
-//        itemCount: shortens.length,
-//        itemBuilder: (context, index) {
-//          return ShortenItem(
-//            shorten: shortens[index],
-//            onToggle: () => _toggleFavShorten(context, shortens[index]),
-//          );
-//        });
   }
 
   Widget _buildItem(BuildContext context, index, List<Shorten> shortens,
       Animation<double> animation) {
-    print("Creating SizeTransition");
-
     final shorten = shortens[index];
 
     return SizeTransition(
@@ -112,24 +90,54 @@ class _HomeViewState extends State<HomeView> {
       sizeFactor: animation,
       child: ShortenItem(
         shorten: shorten,
-        onDelete: () => _deleteShorten(index, shortens),
-        onToggle: () => _toggleFavShorten(context, shorten),
+        onDelete: () => _deleteShorten(index, shorten),
+        onToggle: () => _toggleFavShorten(shorten),
+        onCopy: () => _copyUrl(shorten),
+        onShare: () => _shareShorten(shorten),
       ),
     );
   }
 
-  void _deleteShorten(int index, List<Shorten> shortens) {
-    var shorten = shortens.removeAt(index);
-
-    listKey.currentState.removeItem(
-      index,
-          (context, animation) => _buildItem(context, 0, [shorten], animation),
-      duration: Duration(microseconds: 6000),
+  Widget _buildRemovedItem(BuildContext context, Shorten shorten,
+      Animation<double> animation) {
+    return SizeTransition(
+      key: ValueKey<Shorten>(shorten),
+      axis: Axis.vertical,
+      sizeFactor: animation,
+      child: ShortenItem(
+        shorten: Shorten(
+            link: shorten.link, shortLink: shorten.shortLink, fav: shorten.fav),
+      ),
     );
   }
 
-  void _toggleFavShorten(BuildContext context, Shorten shorten) {
+  void _deleteShorten(int index, Shorten shorten) {
+    BlocProvider.of<ShortenBloc>(context)
+        .add(DeleteShortenEvent(id: shorten.id));
+
+    listKey.currentState.removeItem(
+      index,
+          (context, animation) =>
+          _buildRemovedItem(context, shorten, animation),
+      duration: Duration(milliseconds: 200),
+    );
+  }
+
+  void _toggleFavShorten(Shorten shorten) {
     BlocProvider.of<ShortenBloc>(context)
         .add(ToggleFavShortenEvent(id: shorten.id));
+  }
+
+  void _copyUrl(Shorten shorten) {
+    ClipboardManager.copyToClipBoard(shorten.shortLink).then((result) {
+      final snackBar = SnackBar(
+        content: Text('Copied to Clipboard'),
+      );
+      Scaffold.of(context).showSnackBar(snackBar);
+    });
+  }
+
+  void _shareShorten(Shorten shorten) {
+    Share.share(shorten.shortLink);
   }
 }

@@ -22,6 +22,15 @@ class CreateShortenEvent extends ShortenEvent {
   String toString() => "CreateShortenEvent{ link: $link }";
 }
 
+class DeleteShortenEvent extends ShortenEvent {
+  final String id;
+
+  DeleteShortenEvent({this.id}) : super([id]);
+
+  @override
+  String toString() => 'DeleteShortenEvent{id: $id}';
+}
+
 class ToggleFavShortenEvent extends ShortenEvent {
   final String id;
 

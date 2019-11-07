@@ -44,7 +44,27 @@ class ShortenBloc extends Bloc<ShortenEvent, ShortenState> {
     } else if (event is ToggleFavShortenEvent) {
       yield* _mapToggleFavShortenToState(
           await toggleFavShorten(ToggleFavShortenParam(id: event.id)));
+    } else if (event is DeleteShortenEvent) {
+      yield* _mapDeleteShortenToState(
+          await deleteShorten(DeleteShortenParam(id: event.id)));
     }
+  }
+
+  Stream<ShortenState> _mapDeleteShortenToState(
+      Either<Failure, String> either) async* {
+    logger.v("_mapDeleteShortenToState");
+    yield either.fold(
+          (failure) => Error(message: "Load shorten failed : $failure"),
+          (result) {
+        if (state is Loaded) {
+          final List<Shorten> shortens = (state as Loaded).shortens.where((
+              shorten) => shorten.id != result).toList();
+          return Loaded(shortens: shortens);
+        }
+
+        return Empty();
+      },
+    );
   }
 
   Stream<ShortenState> _mapGetShortenListToState(
@@ -73,8 +93,8 @@ class ShortenBloc extends Bloc<ShortenEvent, ShortenState> {
           (result) {
         print("Current State : $state");
         if (state is Loaded) {
-          final List<Shorten> updatedShorten = (state as Loaded).shortens.map((
-              shorten) {
+          final List<Shorten> updatedShorten =
+          (state as Loaded).shortens.map((shorten) {
             if (shorten.id == result.id) {
               return result;
             }

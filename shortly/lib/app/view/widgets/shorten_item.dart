@@ -1,26 +1,31 @@
 import 'package:flutter/material.dart';
 import 'package:shortly/app/domain/entities/shorten.dart';
 
+const int URL_LENGTH = 40;
+
 class ShortenItem extends StatelessWidget {
-//  final DismissDirectionCallback onDismissed;
   final VoidCallback onDelete;
-  final GestureTapCallback onTap;
+  final VoidCallback onCopy;
+  final VoidCallback onShare;
   final VoidCallback onToggle;
   final Shorten shorten;
 
-  const ShortenItem(
-      {Key key, this.onDelete, this.onTap, this.shorten, this.onToggle})
+  const ShortenItem({Key key,
+    this.onDelete,
+    this.shorten,
+    this.onToggle,
+    this.onCopy,
+    this.onShare})
       : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    print("KEY : ShortenItem__${shorten.id}");
     return Dismissible(
       key: Key('ShortenItem__${shorten.id}'),
       direction: DismissDirection.endToStart,
       background: _slideLeftBackground(),
       onDismissed: onDismissed,
-      child: _c(),
+      child: _buildItem(),
     );
   }
 
@@ -30,25 +35,29 @@ class ShortenItem extends StatelessWidget {
     }
   }
 
-  Widget _c() {
+  Widget _buildItem() {
     return Card(
       child: Column(
         children: <Widget>[
           ListTile(
             leading: Icon(Icons.arrow_right),
-            title: Text("${shorten.link}"),
+            title: Text(
+              "${_getLink(shorten.link)}",
+              maxLines: 1,
+            ),
             subtitle: Text("${shorten.shortLink}"),
+            onTap: () => onCopy(),
           ),
           ButtonTheme.bar(
             child: ButtonBar(
               children: <Widget>[
                 FlatButton(
                   child: Icon(Icons.content_copy),
-                  onPressed: () {},
+                  onPressed: () => onCopy(),
                 ),
                 FlatButton(
                   child: Icon(Icons.share),
-                  onPressed: () {},
+                  onPressed: () => onShare(),
                 ),
                 FlatButton(
                   child:
@@ -61,6 +70,14 @@ class ShortenItem extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  String _getLink(String link) {
+    if (link.length > URL_LENGTH) {
+      return link.substring(0, URL_LENGTH) + "...";
+    }
+
+    return link;
   }
 
   Widget _slideLeftBackground() {

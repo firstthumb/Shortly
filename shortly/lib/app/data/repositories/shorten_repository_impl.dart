@@ -54,9 +54,9 @@ class ShortenRepositoryImpl implements ShortenRepository {
   }
 
   @override
-  Future<Either<Failure, bool>> deleteShorten(String id) async {
+  Future<Either<Failure, String>> deleteShorten(String id) async {
     localDataSource.deleteShorten(id);
-    return Right(true);
+    return Right(id);
   }
 
   @override

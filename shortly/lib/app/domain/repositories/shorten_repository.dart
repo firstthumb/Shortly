@@ -7,7 +7,7 @@ abstract class ShortenRepository {
 
   Future<Either<Failure, Shorten>> saveShorten(Shorten shorten);
 
-  Future<Either<Failure, bool>> deleteShorten(String id);
+  Future<Either<Failure, String>> deleteShorten(String id);
 
   Future<Either<Failure, Shorten>> toggleFavShorten(String id);
 
