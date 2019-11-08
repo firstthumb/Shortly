@@ -9,6 +9,7 @@ import 'package:shortly/app/data/repositories/shorten_repository_impl.dart';
 import 'package:shortly/app/domain/repositories/shorten_repository.dart';
 import 'package:shortly/app/domain/usecases/usecases.dart';
 import 'package:shortly/app/view/bloc/shorten/shorten_bloc.dart';
+import 'package:shortly/app/view/bloc/tab/tab.dart';
 
 final sl = GetIt.instance;
 
@@ -34,6 +35,8 @@ Future<void> init() async {
         deleteShorten: sl(),
         toggleFavShorten: sl(),
       ));
+
+  sl.registerFactory<TabBloc>(() => TabBloc());
 
   // Use cases
   sl.registerLazySingleton(() => AddShortenUseCase(repository: sl()));

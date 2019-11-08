@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shortly/app/view/bloc/shorten/shorten_bloc.dart';
 import 'package:shortly/app/view/bloc/shorten/shorten_event.dart';
+import 'package:shortly/app/view/bloc/tab/tab.dart';
+import 'package:shortly/app/view/models/app_tab.dart';
 import 'package:shortly/di/injection_container.dart';
 
 import 'home_view.dart';
@@ -11,18 +13,25 @@ import 'home_view.dart';
 class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: _buildBody(context),
-      bottomNavigationBar: _buildNavigation(context),
-    );
-  }
-
-  BlocProvider<ShortenBloc> _buildBody(BuildContext context) {
-    return BlocProvider<ShortenBloc>(
-      builder: (_) =>
-      sl<ShortenBloc>()
-        ..add(GetShortenListEvent()),
-      child: HomeView(),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider<ShortenBloc>(
+          builder: (_) =>
+          sl<ShortenBloc>()
+            ..add(GetShortenListEvent()),
+        ),
+        BlocProvider<TabBloc>(
+          builder: (_) => sl<TabBloc>(),
+        ),
+      ],
+      child: BlocBuilder<TabBloc, AppTab>(
+        builder: (context, activeTab) {
+          return Scaffold(
+            body: activeTab == AppTab.home ? HomeView() : Container(),
+            bottomNavigationBar: _buildNavigation(context),
+          );
+        },
+      ),
     );
   }
 
@@ -33,21 +42,21 @@ class HomePage extends StatelessWidget {
           icon: Icon(Icons.home),
           tabName: 'Home',
           onClick: () {
-            print('Home');
+            BlocProvider.of<TabBloc>(context).add(UpdateTab(AppTab.home));
           },
         ),
         Items(
           icon: Icon(Icons.favorite),
           tabName: 'Favorite',
           onClick: () {
-            print('Favorite');
+            BlocProvider.of<TabBloc>(context).add(UpdateTab(AppTab.favourites));
           },
         ),
         Items(
           icon: Icon(Icons.settings),
           tabName: 'Settings',
           onClick: () {
-            print('Settings');
+            BlocProvider.of<TabBloc>(context).add(UpdateTab(AppTab.settings));
           },
         ),
       ],
