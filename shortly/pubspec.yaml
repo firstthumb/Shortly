@@ -12,7 +12,6 @@ dependencies:
 
   cupertino_icons: ^0.1.2
   beauty_navigation: any
-  beauty_textfield: any
   intl: ^0.15.8
   get_it: ^2.0.1
   flutter_bloc: ^2.0.0 #^0.21.0
@@ -27,6 +26,10 @@ dependencies:
   logger: ^0.6.0
   clipboard_manager: ^0.0.1
   share: ^0.6.3+1
+  receive_sharing_intent: ^1.3.1+1
+  toast: ^0.1.5
+  url_launcher: ^5.2.5
+  animator: ^1.0.0+1
 
 dev_dependencies:
   flutter_test:

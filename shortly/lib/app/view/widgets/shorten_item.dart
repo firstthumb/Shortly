@@ -1,22 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:shortly/app/domain/entities/shorten.dart';
+import 'package:url_launcher/url_launcher.dart';
 
-const int URL_LENGTH = 40;
+enum PopupAction { OPEN_URL, SHOW_STATS }
 
 class ShortenItem extends StatelessWidget {
   final VoidCallback onDelete;
   final VoidCallback onCopy;
   final VoidCallback onShare;
   final VoidCallback onToggle;
+  final VoidCallback onStats;
   final Shorten shorten;
+  final PopupAction popupAction;
 
-  const ShortenItem({Key key,
+  const ShortenItem({
+    Key key,
     this.onDelete,
     this.shorten,
     this.onToggle,
     this.onCopy,
-    this.onShare})
-      : super(key: key);
+    this.onShare,
+    this.popupAction,
+    this.onStats,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -35,6 +41,17 @@ class ShortenItem extends StatelessWidget {
     }
   }
 
+  void handlePopUpChanged(PopupAction value) {
+    switch (value) {
+      case PopupAction.OPEN_URL:
+        _openUrl(shorten.shortLink);
+        break;
+      case PopupAction.SHOW_STATS:
+        onStats();
+        break;
+    }
+  }
+
   Widget _buildItem() {
     return Card(
       child: Column(
@@ -42,11 +59,17 @@ class ShortenItem extends StatelessWidget {
           ListTile(
             leading: Icon(Icons.arrow_right),
             title: Text(
-              "${_getLink(shorten.link)}",
+              "${shorten.link}",
               maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
             subtitle: Text("${shorten.shortLink}"),
-            onTap: () => onCopy(),
+            trailing: new PopupMenuButton(
+              icon: Icon(Icons.more_vert),
+              onSelected: (selectedDropDownItem) =>
+                  handlePopUpChanged(selectedDropDownItem),
+              itemBuilder: (BuildContext context) => _listTilePopupMenuItems(),
+            ),
           ),
           ButtonTheme.bar(
             child: ButtonBar(
@@ -70,14 +93,6 @@ class ShortenItem extends StatelessWidget {
         ],
       ),
     );
-  }
-
-  String _getLink(String link) {
-    if (link.length > URL_LENGTH) {
-      return link.substring(0, URL_LENGTH) + "...";
-    }
-
-    return link;
   }
 
   Widget _slideLeftBackground() {
@@ -107,5 +122,24 @@ class ShortenItem extends StatelessWidget {
         alignment: Alignment.centerRight,
       ),
     );
+  }
+
+  List<PopupMenuItem> _listTilePopupMenuItems() {
+    return [
+      PopupMenuItem(
+        child: Text("Open"),
+        value: PopupAction.OPEN_URL,
+      ),
+      PopupMenuItem(
+        child: Text("Show Stats"),
+        value: PopupAction.SHOW_STATS,
+      ),
+    ];
+  }
+
+  void _openUrl(String url) async {
+    if (await canLaunch(url)) {
+      await launch(url);
+    }
   }
 }

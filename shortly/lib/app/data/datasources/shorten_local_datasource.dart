@@ -40,7 +40,12 @@ class ShortenLocalDataSourceImpl implements ShortenLocalDataSource {
     logger.v("Saving shorten => Model : $model");
     final id = model.id ?? Uuid().v4();
     final savedModel = ShortenModel(
-        id: id, link: model.link, shortLink: model.shortLink, fav: model.fav);
+      id: id,
+      link: model.link,
+      shortLink: model.shortLink,
+      fav: model.fav,
+      createdAt: DateTime.now(),
+    );
     await shortenBox.put(id, savedModel);
     logger.v("Saved shorten => Model : $savedModel");
     return savedModel;

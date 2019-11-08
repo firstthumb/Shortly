@@ -6,16 +6,18 @@ class Shorten extends Equatable {
   final String link;
   final String shortLink;
   final bool fav;
+  final DateTime createdAt;
 
   Shorten({
     this.id,
     @required this.link,
     @required this.shortLink,
     @required this.fav,
-  }) : super([id, link, shortLink, fav]);
+    @required this.createdAt,
+  }) : super([id, link, shortLink, fav, createdAt]);
 
   @override
   String toString() {
-    return "Shorten{id: $id, link: $link, shortLink: $shortLink, fav: $fav}";
+    return "Shorten{id: $id, link: $link, shortLink: $shortLink, fav: $fav, createdAt: $createdAt}";
   }
 }

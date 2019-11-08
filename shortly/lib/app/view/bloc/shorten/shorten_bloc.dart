@@ -40,7 +40,7 @@ class ShortenBloc extends Bloc<ShortenEvent, ShortenState> {
       yield Loading();
       yield* _mapCreateShortenToState(
           await addShorten(AddShortenParam(link: event.link)));
-      add(GetShortenListEvent());
+      yield* _mapGetShortenListToState(await getShortenList(NoParams()));
     } else if (event is ToggleFavShortenEvent) {
       yield* _mapToggleFavShortenToState(
           await toggleFavShorten(ToggleFavShortenParam(id: event.id)));
@@ -91,7 +91,6 @@ class ShortenBloc extends Bloc<ShortenEvent, ShortenState> {
     yield either.fold(
           (failure) => Error(message: "Toggle fav shorten failed : $failure"),
           (result) {
-        print("Current State : $state");
         if (state is Loaded) {
           final List<Shorten> updatedShorten =
           (state as Loaded).shortens.map((shorten) {

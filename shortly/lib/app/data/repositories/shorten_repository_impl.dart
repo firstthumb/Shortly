@@ -25,7 +25,8 @@ class ShortenRepositoryImpl implements ShortenRepository {
     try {
       final shortenList = await localDataSource.getShortens();
       logger.v("Shortens => $shortenList");
-      return Right(shortenList.map((model) => model.toEntity()).toList());
+      return Right(shortenList.map((model) => model.toEntity()).toList()
+        ..sort((a, b) => b.createdAt.compareTo(a.createdAt)));
     } on Error catch (e) {
       logger.e("Could not fetch local shortens: $e");
       return Left(LocalFailure());
@@ -64,7 +65,8 @@ class ShortenRepositoryImpl implements ShortenRepository {
     try {
       final shorten = await localDataSource.getShorten(id);
       final savedShortenModel = await localDataSource.saveShorten(
-          ShortenModel.fromEntity(Shorten(id: id,
+          ShortenModel.fromEntity(Shorten(
+              id: id,
               link: shorten.link,
               shortLink: shorten.shortLink,
               fav: !shorten.fav)));

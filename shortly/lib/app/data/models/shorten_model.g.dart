@@ -18,13 +18,14 @@ class ShortenModelAdapter extends TypeAdapter<ShortenModel> {
       link: fields[1] as String,
       shortLink: fields[2] as String,
       fav: fields[3] as bool,
+      createdAt: fields[4] as DateTime,
     );
   }
 
   @override
   void write(BinaryWriter writer, ShortenModel obj) {
     writer
-      ..writeByte(4)
+      ..writeByte(5)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -32,6 +33,8 @@ class ShortenModelAdapter extends TypeAdapter<ShortenModel> {
       ..writeByte(2)
       ..write(obj.shortLink)
       ..writeByte(3)
-      ..write(obj.fav);
+      ..write(obj.fav)
+      ..writeByte(4)
+      ..write(obj.createdAt);
   }
 }

@@ -21,22 +21,33 @@ class ShortenModel extends Equatable {
   @HiveField(3)
   final bool fav;
 
+  @HiveField(4)
+  final DateTime createdAt;
+
   ShortenModel({
     this.id,
     @required this.link,
     @required this.shortLink,
-    @required this.fav
+    @required this.fav,
+    @required this.createdAt,
   }) : super([id, link, shortLink, fav]);
 
   Shorten toEntity() {
-    return Shorten(id: id, link: link, shortLink: shortLink, fav: fav);
+    return Shorten(id: id,
+        link: link,
+        shortLink: shortLink,
+        fav: fav,
+        createdAt: createdAt);
   }
 
   static ShortenModel fromEntity(Shorten entity) {
-    return ShortenModel(id: entity.id,
-        link: entity.link,
-        shortLink: entity.shortLink,
-        fav: entity.fav);
+    return ShortenModel(
+      id: entity.id,
+      link: entity.link,
+      shortLink: entity.shortLink,
+      fav: entity.fav,
+      createdAt: DateTime.now(),
+    );
   }
 
   static ShortenModel fromJson(Map<String, dynamic> json) {
@@ -44,11 +55,12 @@ class ShortenModel extends Equatable {
       link: json['url'],
       shortLink: json['short_url'],
       fav: false,
+      createdAt: DateTime.now(),
     );
   }
 
   @override
   String toString() {
-    return 'ShortenModel{id: $id, link: $link, shortLink: $shortLink, fav: $fav}';
+    return 'ShortenModel{id: $id, link: $link, shortLink: $shortLink, fav: $fav, createdAt: $createdAt}';
   }
 }

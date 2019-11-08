@@ -13,10 +13,12 @@ class Loading extends ShortenState {}
 
 class Created extends ShortenState {
   final Shorten shorten;
+  final bool sharedIntent;
 
   Created({
+    @required this.sharedIntent,
     @required this.shorten,
-  }) : super([shorten]);
+  }) : super([shorten, sharedIntent]);
 }
 
 class Loaded extends ShortenState {
