@@ -8,6 +8,7 @@ import 'package:shortly/app/data/models/shorten_model.dart';
 import 'package:shortly/app/data/repositories/shorten_repository_impl.dart';
 import 'package:shortly/app/domain/repositories/shorten_repository.dart';
 import 'package:shortly/app/domain/usecases/usecases.dart';
+import 'package:shortly/app/view/bloc/fav/fav_bloc.dart';
 import 'package:shortly/app/view/bloc/shorten/shorten_bloc.dart';
 import 'package:shortly/app/view/bloc/tab/tab.dart';
 
@@ -37,6 +38,7 @@ Future<void> init() async {
       ));
 
   sl.registerFactory<TabBloc>(() => TabBloc());
+  sl.registerFactory<FavBloc>(() => FavBloc(shortenBloc: sl()));
 
   // Use cases
   sl.registerLazySingleton(() => AddShortenUseCase(repository: sl()));

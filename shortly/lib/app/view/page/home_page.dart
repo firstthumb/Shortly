@@ -2,12 +2,14 @@ import 'package:beauty_navigation/beauty_navigation.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shortly/app/view/bloc/fav/fav_bloc.dart';
 import 'package:shortly/app/view/bloc/shorten/shorten_bloc.dart';
 import 'package:shortly/app/view/bloc/shorten/shorten_event.dart';
 import 'package:shortly/app/view/bloc/tab/tab.dart';
 import 'package:shortly/app/view/models/app_tab.dart';
 import 'package:shortly/di/injection_container.dart';
 
+import 'favourite_view.dart';
 import 'home_view.dart';
 
 class HomePage extends StatelessWidget {
@@ -20,6 +22,9 @@ class HomePage extends StatelessWidget {
           sl<ShortenBloc>()
             ..add(GetShortenListEvent()),
         ),
+        BlocProvider<FavBloc>(
+          builder: (_) => sl<FavBloc>(),
+        ),
         BlocProvider<TabBloc>(
           builder: (_) => sl<TabBloc>(),
         ),
@@ -27,7 +32,7 @@ class HomePage extends StatelessWidget {
       child: BlocBuilder<TabBloc, AppTab>(
         builder: (context, activeTab) {
           return Scaffold(
-            body: activeTab == AppTab.home ? HomeView() : Container(),
+            body: activeTab == AppTab.home ? HomeView() : FavouriteView(),
             bottomNavigationBar: _buildNavigation(context),
           );
         },

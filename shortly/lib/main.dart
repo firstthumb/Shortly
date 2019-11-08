@@ -1,13 +1,16 @@
+import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:logger/logger.dart';
 
+import 'app/view/bloc/bloc_delegate.dart';
 import 'app/view/page/home_page.dart';
 import 'di/injection_container.dart' as di;
 
 void main() async {
   Logger.level = Level.verbose;
   await di.init();
+  BlocSupervisor.delegate = SimpleBlocDelegate();
   runApp(MainApp());
 }
 
