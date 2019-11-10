@@ -76,4 +76,18 @@ class ShortenRepositoryImpl implements ShortenRepository {
       return Left(LocalFailure());
     }
   }
+
+  @override
+  Future<Either<Failure, List<Shorten>>> getFavShortens() async {
+    logger.v("Getting fav shortens");
+    try {
+      final shortenList = await localDataSource.getFavShortens();
+      logger.v("Shortens => $shortenList");
+      return Right(shortenList.map((model) => model.toEntity()).toList()
+        ..sort((a, b) => b.createdAt.compareTo(a.createdAt)));
+    } on Error catch (e) {
+      logger.e("Could not fetch local shortens: $e");
+      return Left(LocalFailure());
+    }
+  }
 }

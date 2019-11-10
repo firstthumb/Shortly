@@ -5,6 +5,8 @@ import 'package:shortly/core/error/failures.dart';
 abstract class ShortenRepository {
   Future<Either<Failure, List<Shorten>>> getAllShortens();
 
+  Future<Either<Failure, List<Shorten>>> getFavShortens();
+
   Future<Either<Failure, Shorten>> saveShorten(Shorten shorten);
 
   Future<Either<Failure, String>> deleteShorten(String id);
