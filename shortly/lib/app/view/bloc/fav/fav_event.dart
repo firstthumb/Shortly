@@ -13,5 +13,5 @@ class FavListEvent extends FavEvent {
   FavListEvent({this.shortens}) : super([shortens]);
 
   @override
-  String toString() => "GetShortenListEvent{ }";
+  String toString() => "FavListEvent{ }";
 }

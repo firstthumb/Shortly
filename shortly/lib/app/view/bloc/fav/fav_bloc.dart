@@ -1,47 +1,39 @@
 import 'dart:async';
 
 import 'package:bloc/bloc.dart';
+import 'package:dartz/dartz.dart';
 import 'package:meta/meta.dart';
+import 'package:shortly/app/domain/entities/shorten.dart';
+import 'package:shortly/app/domain/usecases/get_fav_shorten_list_usecase.dart';
+import 'package:shortly/core/error/failures.dart';
+import 'package:shortly/core/usecases/usecase.dart';
 
-import '../blocs.dart';
 import 'fav_event.dart';
 import 'fav_state.dart';
 
 class FavBloc extends Bloc<FavEvent, FavState> {
-  final ShortenBloc shortenBloc;
-  StreamSubscription shortenSubscription;
+  final GetFavShortenListUseCase getFavShortenList;
 
-  FavBloc({@required this.shortenBloc}) {
-    print("***********");
-    print("FavBloc");
-    print("***********");
-    shortenSubscription = shortenBloc.listen((state) {
-      if (state is Loaded) {
-        add(FavListEvent(shortens: state.shortens));
-      }
-
-      print("***********");
-      print("FavBloc listen $state");
-      print("***********");
-    }, onError: (error) {
-      print("ON_ERROR : $error");
-    });
-  }
+  FavBloc({
+    @required this.getFavShortenList,
+  });
 
   @override
   FavState get initialState => FavEmpty();
 
   @override
   Stream<FavState> mapEventToState(FavEvent event) async* {
-    print("FavBloc mapEventToState $state");
     if (event is FavListEvent) {
-      yield FavLoaded(shortens: event.shortens);
+      yield FavLoading();
+      yield* _mapGetFavShortenListToState(await getFavShortenList(NoParams()));
     }
   }
 
-  @override
-  Future<void> close() {
-    shortenSubscription.cancel();
-    return super.close();
+  Stream<FavState> _mapGetFavShortenListToState(
+      Either<Failure, List<Shorten>> either) async* {
+    yield either.fold(
+          (failure) => FavError(message: "Load shorten failed : $failure"),
+          (result) => FavLoaded(shortens: result),
+    );
   }
 }

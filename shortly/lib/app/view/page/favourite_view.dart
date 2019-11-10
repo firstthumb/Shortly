@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:share/share.dart';
 import 'package:shortly/app/view/bloc/fav/fav_bloc.dart';
+import 'package:shortly/app/view/bloc/fav/fav_event.dart';
 import 'package:shortly/app/view/bloc/fav/fav_state.dart';
 import 'package:shortly/app/view/bloc/shorten/shorten_event.dart';
 import 'package:shortly/app/view/widgets/loading_widget.dart';
@@ -22,6 +23,14 @@ class _FavouriteViewState extends State<FavouriteView> {
   final logger = getLogger('FavouriteViewState');
 
   final GlobalKey<AnimatedListState> listKey = GlobalKey<AnimatedListState>();
+
+
+  @override
+  void initState() {
+    super.initState();
+    BlocProvider.of<FavBloc>(context)
+        .add(FavListEvent());
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -65,38 +74,9 @@ class _FavouriteViewState extends State<FavouriteView> {
 
     return ShortenItem(
       shorten: shorten,
-      onDelete: () => _deleteShorten(index, shorten),
       onToggle: () => _toggleFavShorten(shorten),
       onCopy: () => _copyUrl(shorten),
       onShare: () => _shareShorten(shorten),
-    );
-  }
-
-  Widget _buildRemovedItem(
-      BuildContext context, Shorten shorten, Animation<double> animation) {
-    return SizeTransition(
-      key: ValueKey<Shorten>(shorten),
-      axis: Axis.vertical,
-      sizeFactor: animation,
-      child: ShortenItem(
-        shorten: Shorten(
-          link: shorten.link,
-          shortLink: shorten.shortLink,
-          fav: shorten.fav,
-          createdAt: DateTime.now(),
-        ),
-      ),
-    );
-  }
-
-  void _deleteShorten(int index, Shorten shorten) {
-    BlocProvider.of<ShortenBloc>(context)
-        .add(DeleteShortenEvent(id: shorten.id));
-
-    listKey.currentState.removeItem(
-      index,
-      (context, animation) => _buildRemovedItem(context, shorten, animation),
-      duration: Duration.zero,
     );
   }
 
@@ -119,10 +99,5 @@ class _FavouriteViewState extends State<FavouriteView> {
   void _shareShorten(Shorten shorten) {
     logger.v("Share : ${shorten.shortLink}");
     Share.share(shorten.shortLink);
-  }
-
-  void _shortenUrlAndCopyClipBoard(String inputUrl) {
-    BlocProvider.of<ShortenBloc>(context)
-        .add(CreateShortenEvent(link: inputUrl));
   }
 }
