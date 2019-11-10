@@ -92,7 +92,7 @@ class _HomeViewState extends State<HomeView> {
                         duration: Toast.LENGTH_LONG, gravity: Toast.CENTER);
                     return null;
                   } else {
-                    return null;
+                    return Container();
                   }
                 },
               ),

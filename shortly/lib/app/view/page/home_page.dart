@@ -7,6 +7,7 @@ import 'package:shortly/app/view/bloc/shorten/shorten_bloc.dart';
 import 'package:shortly/app/view/bloc/shorten/shorten_event.dart';
 import 'package:shortly/app/view/bloc/tab/tab.dart';
 import 'package:shortly/app/view/models/app_tab.dart';
+import 'package:shortly/app/view/page/settings_view.dart';
 import 'package:shortly/di/injection_container.dart';
 
 import 'favourite_view.dart';
@@ -32,7 +33,8 @@ class HomePage extends StatelessWidget {
       child: BlocBuilder<TabBloc, AppTab>(
         builder: (context, activeTab) {
           return Scaffold(
-            body: activeTab == AppTab.home ? HomeView() : FavouriteView(),
+            body: activeTab == AppTab.home ? HomeView() : (activeTab ==
+                AppTab.favourites ? FavouriteView() : SettingsView()),
             bottomNavigationBar: _buildNavigation(context),
           );
         },

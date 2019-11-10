@@ -20,7 +20,9 @@ class FavBloc extends Bloc<FavEvent, FavState> {
         add(FavListEvent(shortens: state.shortens));
       }
 
+      print("***********");
       print("FavBloc listen $state");
+      print("***********");
     }, onError: (error) {
       print("ON_ERROR : $error");
     });

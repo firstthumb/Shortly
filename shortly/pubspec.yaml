@@ -30,6 +30,11 @@ dependencies:
   toast: ^0.1.5
   url_launcher: ^5.2.5
   animator: ^1.0.0+1
+  shared_preferences_settings: ^1.0.0+1
+
+
+dependency_overrides:
+  rxdart: ^0.22.0
 
 dev_dependencies:
   flutter_test:
