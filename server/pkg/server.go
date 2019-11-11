@@ -30,7 +30,7 @@ func (s *HttpServer) NewMux() *http.ServeMux {
 	handler.MakeShortenHandlers(r, *n, shortenService)
 	handler.MakeSyncShortenHandlers(r, *n, shortenService)
 
-	m.Handle("/api/", r)
+	m.Handle("/", r)
 	r.HandleFunc("/ping", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 	})

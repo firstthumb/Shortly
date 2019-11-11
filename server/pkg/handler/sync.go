@@ -38,7 +38,7 @@ func syncShorten(srv service.ShortenService) http.Handler {
 			return
 		}
 
-		shortens, err := srv.Sync(request.UserId, request.Shortens)
+		shortens, err := srv.Sync(request.UserId, request.Shortens, request.Deleted)
 		if err != nil {
 			log.Errorf("Sync Shorten Handler => Could not call shorten service. %v", err)
 			http.Error(w, err.Error(), 500)

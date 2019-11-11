@@ -23,22 +23,16 @@ type ShortenServiceImpl struct {
 	firebaseApp *firebase.App
 }
 
-// TODO: Fill
 var config = &firebase.Config{
-	AuthOverride:     nil,
-	DatabaseURL:      "",
-	ProjectID:        "",
-	ServiceAccountID: "",
-	StorageBucket:    "",
+	ProjectID: "shortly-8a1b4",
 }
 
 func NewShortenService() ShortenService {
-	opt := option.WithCredentialsJSON([]byte("a.sa"))
-	app, err := firebase.NewApp(context.Background(), nil, opt)
+	opt := option.WithCredentialsFile("../../shortly-firebase-adminsdk.json")
+	app, err := firebase.NewApp(context.Background(), config, opt)
 	if err != nil {
 		log.Errorf("Cannot create firebase app => %v", err)
 	}
-	app.Firestore()
 	return &ShortenServiceImpl{
 		client:      resty.New(),
 		firebaseApp: app,
@@ -71,26 +65,30 @@ type ShortenError struct {
 
 func (s *ShortenServiceImpl) GetSync(userId string) ([]entity.Shorten, error) {
 	ctx := context.Background()
-	database, err := s.firebaseApp.Database(ctx)
+	firestore, _ := s.firebaseApp.Firestore(ctx)
+	defer firestore.Close()
+
+	snapshot, err := firestore.Collection("users").Doc(userId).Get(ctx)
 	if err != nil {
-		log.Fatal(err)
+		log.Error(err)
 		return nil, err
 	}
 
-	var shortens []entity.Shorten
-	if err := database.NewRef("users/"+userId+"/shortens").Get(ctx, &shortens); err != nil {
-		log.Fatal(err)
-		return nil, err
+	if !snapshot.Exists() {
+		log.Error("Not found")
+		return nil, errors.New("NOT FOUND")
 	}
 
-	return shortens, nil
+	log.Infof("SHORTENS : %s", snapshot.Data()["shortens"])
+
+	return nil, nil
 }
 
 func (s *ShortenServiceImpl) Sync(userId string, shortens []entity.Shorten, deleted []string) ([]entity.Shorten, error) {
 	ctx := context.Background()
 	database, err := s.firebaseApp.Database(ctx)
 	if err != nil {
-		log.Fatal(err)
+		log.Error(err)
 		return nil, err
 	}
 
