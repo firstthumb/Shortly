@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"github.com/codegangsta/negroni"
 	"github.com/gorilla/mux"
-	"io/ioutil"
 	log "github.com/sirupsen/logrus"
+	"io/ioutil"
 	"net/http"
 	"shortly/pkg/service"
 )
@@ -16,8 +16,8 @@ type ShortlyRequest struct {
 }
 
 type ShortlyResponse struct {
-	ShortUrl 	string `json:"short_url"`
-	Url 		string `json:"url"`
+	ShortUrl string `json:"short_url"`
+	Url      string `json:"url"`
 }
 
 func shortenIndex(srv service.ShortenService) http.Handler {
@@ -52,7 +52,7 @@ func shortenIndex(srv service.ShortenService) http.Handler {
 		}
 
 		w.Header().Set("content-type", "application/json")
-		w.Write(output)
+		_, _ = w.Write(output)
 	})
 }
 

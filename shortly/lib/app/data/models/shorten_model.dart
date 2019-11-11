@@ -64,9 +64,9 @@ class ShortenModel extends Equatable {
       {
         'id': id,
         'link': link,
-        'shortLink': shortLink,
+        'short_link': shortLink,
         'fav': fav,
-        'createdAt': createdAt,
+        'created_at': createdAt,
       };
 
   @override

@@ -26,10 +26,11 @@ func (s *HttpServer) NewMux() *http.ServeMux {
 		negroni.NewLogger(),
 	)
 
-	//shorten
+	//shorten handlers
 	handler.MakeShortenHandlers(r, *n, shortenService)
+	handler.MakeSyncShortenHandlers(r, *n, shortenService)
 
-	m.Handle("/", r)
+	m.Handle("/api/", r)
 	r.HandleFunc("/ping", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 	})
