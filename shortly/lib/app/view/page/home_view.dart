@@ -36,11 +36,16 @@ class _HomeViewState extends State<HomeView> {
         return;
       }
 
+      // Don't call the callback again
+      ReceiveSharingIntent.reset();
+
       logger.v("Shared Text : $value");
       _shortenUrlAndCopyClipBoard(value);
+
+      Toast.show("Copied to clipboard", context,
+          duration: Toast.LENGTH_LONG, gravity: Toast.CENTER);
     });
   }
-
 
   @override
   void dispose() {
@@ -88,8 +93,6 @@ class _HomeViewState extends State<HomeView> {
                     return _buildList(context, state.shortens);
                   } else if (state is Created && state.sharedIntent) {
                     _copyUrl(state.shorten);
-                    Toast.show("Copied to clipboard", context,
-                        duration: Toast.LENGTH_LONG, gravity: Toast.CENTER);
                     return null;
                   } else {
                     return Container();
@@ -164,6 +167,7 @@ class _HomeViewState extends State<HomeView> {
     ClipboardManager.copyToClipBoard(shorten.shortLink).then((result) {
       final snackBar = SnackBar(
         content: Text('Copied to Clipboard'),
+        duration: Duration(seconds: 2),
       );
       Scaffold.of(context).showSnackBar(snackBar);
     });

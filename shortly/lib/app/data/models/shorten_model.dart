@@ -50,14 +50,24 @@ class ShortenModel extends Equatable {
     );
   }
 
-  static ShortenModel fromJson(Map<String, dynamic> json) {
+  factory ShortenModel.fromJson(Map<String, dynamic> json) {
     return ShortenModel(
+      id: json['id'],
       link: json['url'],
       shortLink: json['short_url'],
       fav: false,
       createdAt: DateTime.now(),
     );
   }
+
+  Map<String, dynamic> toJson() =>
+      {
+        'id': id,
+        'link': link,
+        'shortLink': shortLink,
+        'fav': fav,
+        'createdAt': createdAt,
+      };
 
   @override
   String toString() {

@@ -90,4 +90,19 @@ class ShortenRepositoryImpl implements ShortenRepository {
       return Left(LocalFailure());
     }
   }
+
+  @override
+  Future<Either<Failure, List<Shorten>>> syncShortens(String userId) async {
+    logger.v("Syncing shortens => UserId : $userId");
+    try {
+      final shortens = await localDataSource.getShortens();
+      final syncedShortens =
+      await remoteDataSource.syncShortens(userId, shortens);
+      return Right(syncedShortens.map((model) => model.toEntity()).toList()
+        ..sort((a, b) => b.createdAt.compareTo(a.createdAt)));
+    } catch (e) {
+      logger.e("Could not sync shortens: $e");
+      return Left(ServerFailure());
+    }
+  }
 }

@@ -39,3 +39,12 @@ class ToggleFavShortenEvent extends ShortenEvent {
   @override
   String toString() => 'ToggleFavShortenEvent{id: $id}';
 }
+
+class SyncShortenEvent extends ShortenEvent {
+  final String userId;
+
+  SyncShortenEvent({this.userId}) : super([userId]);
+
+  @override
+  String toString() => 'SyncShortenEvent{id: $userId}';
+}

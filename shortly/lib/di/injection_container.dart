@@ -36,6 +36,7 @@ Future<void> init() async {
         getShortenList: sl(),
         deleteShorten: sl(),
         toggleFavShorten: sl(),
+        syncShorten: sl(),
       ));
 
   sl.registerFactory<TabBloc>(() => TabBloc());
@@ -47,6 +48,7 @@ Future<void> init() async {
   sl.registerLazySingleton(() => ToggleFavShortenUseCase(repository: sl()));
   sl.registerLazySingleton(() => DeleteShortenUseCase(repository: sl()));
   sl.registerLazySingleton(() => GetFavShortenListUseCase(repository: sl()));
+  sl.registerLazySingleton(() => SyncShortenUseCase(repository: sl()));
 
   // Repositories
   sl.registerLazySingleton<ShortenRepository>(() =>

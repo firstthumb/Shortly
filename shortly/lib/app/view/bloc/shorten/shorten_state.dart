@@ -36,3 +36,13 @@ class Error extends ShortenState {
 
   Error({@required this.message}) : super([message]);
 }
+
+class Syncing extends ShortenState {}
+
+class Synced extends ShortenState {
+  final List<Shorten> shortens;
+
+  Synced({
+    @required this.shortens,
+  }) : super([shortens]);
+}

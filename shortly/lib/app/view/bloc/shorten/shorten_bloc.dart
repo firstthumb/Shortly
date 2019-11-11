@@ -18,12 +18,14 @@ class ShortenBloc extends Bloc<ShortenEvent, ShortenState> {
   final GetShortenListUseCase getShortenList;
   final DeleteShortenUseCase deleteShorten;
   final ToggleFavShortenUseCase toggleFavShorten;
+  final SyncShortenUseCase syncShorten;
 
   ShortenBloc({
     @required this.addShorten,
     @required this.getShortenList,
     @required this.deleteShorten,
     @required this.toggleFavShorten,
+    @required this.syncShorten,
   });
 
   @override
@@ -31,8 +33,6 @@ class ShortenBloc extends Bloc<ShortenEvent, ShortenState> {
 
   @override
   Stream<ShortenState> mapEventToState(ShortenEvent event) async* {
-    logger.v("BEFORE State : $state, Event : $event");
-
     if (event is GetShortenListEvent) {
       yield Loading();
       yield* _mapGetShortenListToState(await getShortenList(NoParams()));
@@ -47,7 +47,20 @@ class ShortenBloc extends Bloc<ShortenEvent, ShortenState> {
     } else if (event is DeleteShortenEvent) {
       yield* _mapDeleteShortenToState(
           await deleteShorten(DeleteShortenParam(id: event.id)));
+    } else if (event is SyncShortenEvent) {
+      yield Syncing();
+      yield* _mapSyncShortenToState(
+          await syncShorten(SyncShortenUseCaseParam(userId: event.userId)));
     }
+  }
+
+  Stream<ShortenState> _mapSyncShortenToState(
+      Either<Failure, List<Shorten>> either) async* {
+    logger.v("_mapSyncShortenToState");
+    yield either.fold(
+          (failure) => Error(message: "Sync shorten failed : $failure"),
+          (result) => Synced(shortens: result),
+    );
   }
 
   Stream<ShortenState> _mapDeleteShortenToState(
@@ -57,8 +70,10 @@ class ShortenBloc extends Bloc<ShortenEvent, ShortenState> {
           (failure) => Error(message: "Load shorten failed : $failure"),
           (result) {
         if (state is Loaded) {
-          final List<Shorten> shortens = (state as Loaded).shortens.where((
-              shorten) => shorten.id != result).toList();
+          final List<Shorten> shortens = (state as Loaded)
+              .shortens
+              .where((shorten) => shorten.id != result)
+              .toList();
           return Loaded(shortens: shortens);
         }
 
