@@ -1,3 +1,4 @@
 /.idea/shortly.iml
 /.idea/**
 /server/shortly-firebase-adminsdk.json
+/shortly/android/app/google-services.json
