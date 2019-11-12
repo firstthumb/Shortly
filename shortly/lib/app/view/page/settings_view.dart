@@ -3,6 +3,7 @@ import 'package:flutter_auth_buttons/flutter_auth_buttons.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:shared_preferences_settings/shared_preferences_settings.dart';
 import 'package:shortly/core/util/logger.dart';
+import 'package:shortly/di/injection_container.dart';
 
 class SettingsView extends StatefulWidget {
   @override
@@ -12,12 +13,7 @@ class SettingsView extends StatefulWidget {
 class _SettingsViewState extends State<SettingsView> {
   final logger = getLogger('SettingsViewState');
 
-  final GoogleSignIn _googleSignIn = GoogleSignIn(
-    scopes: [
-      'email',
-    ],
-  );
-
+  final _googleSignIn = sl.get("GoogleSignIn");
   GoogleSignInAccount _currentUser;
 
   @override

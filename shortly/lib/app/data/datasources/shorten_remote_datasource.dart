@@ -49,12 +49,14 @@ class ShortenRemoteDataSourceImpl implements ShortenRemoteDataSource {
   @override
   Future<List<ShortenModel>> syncShortens(String userId,
       List<ShortenModel> shortens) async {
+    logger.v("Syncing => UserId : $userId");
+
     final payload = jsonEncode(shortens);
 
     final response = await client.post(
-      SHORTEN_SERVICE + "/sync",
+      SHORTEN_SERVICE + "/sync/$userId",
       headers: {"Content-type": "application/json"},
-      body: '{"user_id": "$userId", "shortens": "$payload"}',
+      body: '{"shortens": "$payload", "deleted":[]}',
     );
 
     logger.v("Response : $response");
@@ -70,7 +72,7 @@ class ShortenRemoteDataSourceImpl implements ShortenRemoteDataSource {
   @override
   Future<List<ShortenModel>> getSyncShortens(String userId) async {
     final response = await client.get(
-      SHORTEN_SERVICE + "/sync",
+      SHORTEN_SERVICE + "/sync/$userId",
       headers: {"Content-type": "application/json"},
     );
 
@@ -86,7 +88,8 @@ class ShortenRemoteDataSourceImpl implements ShortenRemoteDataSource {
 
   List<ShortenModel> _parseShortenModels(String responseBody) {
     final parsed = json.decode(responseBody).cast<Map<String, dynamic>>();
-    return parsed.map<ShortenModel>((json) => ShortenModel.fromJson(json))
+    return parsed["shortens"]
+        .map<ShortenModel>((json) => ShortenModel.fromJson(json))
         .toList();
   }
 }

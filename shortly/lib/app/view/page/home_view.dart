@@ -1,6 +1,7 @@
 import 'package:clipboard_manager/clipboard_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:receive_sharing_intent/receive_sharing_intent.dart';
 import 'package:share/share.dart';
 import 'package:shortly/app/view/bloc/shorten/shorten_event.dart';
@@ -8,6 +9,7 @@ import 'package:shortly/app/view/widgets/beauty_textfield.dart';
 import 'package:shortly/app/view/widgets/loading_widget.dart';
 import 'package:shortly/app/view/widgets/shorten_item.dart';
 import 'package:shortly/core/util/logger.dart';
+import 'package:shortly/di/injection_container.dart';
 import 'package:toast/toast.dart';
 
 import '../../domain/entities/shorten.dart';
@@ -90,9 +92,12 @@ class _HomeViewState extends State<HomeView> {
                   } else if (state is Loading) {
                     return LoadingWidget();
                   } else if (state is Loaded) {
+                    _sync();
                     return _buildList(context, state.shortens);
                   } else if (state is Created && state.sharedIntent) {
                     _copyUrl(state.shorten);
+                    // Testing...
+
                     return null;
                   } else {
                     return Container();
@@ -181,5 +186,16 @@ class _HomeViewState extends State<HomeView> {
   void _shortenUrlAndCopyClipBoard(String inputUrl) {
     BlocProvider.of<ShortenBloc>(context)
         .add(CreateShortenEvent(link: inputUrl));
+  }
+
+  void _sync() {
+    final currentUser = sl<GoogleSignIn>().currentUser;
+    if (currentUser != null) {
+      logger.v("Logged User : $currentUser");
+      BlocProvider.of<ShortenBloc>(context)
+          .add(SyncShortenEvent(userId: currentUser.id));
+    } else {
+      logger.v("Not logged in yet...");
+    }
   }
 }
