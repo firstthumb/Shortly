@@ -27,6 +27,7 @@ func (s *HttpServer) NewMux() *http.ServeMux {
 	)
 
 	//shorten handlers
+	//r.HandleFunc("/", firestorm.CacheHandler(m))
 	handler.MakeShortenHandlers(r, *n, shortenService)
 	handler.MakeSyncShortenHandlers(r, *n, shortenService)
 

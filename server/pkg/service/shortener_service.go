@@ -7,9 +7,11 @@ import (
 	firebase "firebase.google.com/go"
 	"fmt"
 	"github.com/go-resty/resty/v2"
+	"github.com/jschoedt/go-firestorm"
 	log "github.com/sirupsen/logrus"
 	"google.golang.org/api/option"
 	"os"
+	"path/filepath"
 	"shortly/pkg/entity"
 	"strings"
 )
@@ -28,7 +30,8 @@ var config = &firebase.Config{
 }
 
 func NewShortenService() ShortenService {
-	opt := option.WithCredentialsFile("../../shortly-firebase-adminsdk.json")
+	absPath, _ := filepath.Abs("./shortly-firebase-adminsdk.json")
+	opt := option.WithCredentialsFile(absPath)
 	app, err := firebase.NewApp(context.Background(), config, opt)
 	if err != nil {
 		log.Errorf("Cannot create firebase app => %v", err)
@@ -63,46 +66,70 @@ type ShortenError struct {
 	Status  string `json:"status"`
 }
 
-func (s *ShortenServiceImpl) GetSync(userId string) ([]entity.Shorten, error) {
+func (s *ShortenServiceImpl) GetUser(userId string) (*entity.User, error) {
 	ctx := context.Background()
-	firestore, _ := s.firebaseApp.Firestore(ctx)
+	firestore, err := s.firebaseApp.Firestore(ctx)
+	if err != nil {
+		log.Error(err)
+		return nil, err
+	}
 	defer firestore.Close()
+	fsc := firestorm.New(firestore, "Id", "")
 
-	snapshot, err := firestore.Collection("users").Doc(userId).Get(ctx)
+	user := &entity.User{Id: userId}
+	_, err = fsc.NewRequest().GetEntities(ctx, user)()
 	if err != nil {
 		log.Error(err)
 		return nil, err
 	}
 
-	if !snapshot.Exists() {
-		log.Error("Not found")
-		return nil, errors.New("NOT FOUND")
+	return user, nil
+}
+
+func (s *ShortenServiceImpl) GetSync(userId string) ([]entity.Shorten, error) {
+	user, err := s.GetUser(userId)
+	if err != nil {
+		log.Error(err)
+		return nil, err
 	}
 
-	log.Infof("SHORTENS : %s", snapshot.Data()["shortens"])
-
-	return nil, nil
+	return user.GetShortens()
 }
 
 func (s *ShortenServiceImpl) Sync(userId string, shortens []entity.Shorten, deleted []string) ([]entity.Shorten, error) {
 	ctx := context.Background()
-	database, err := s.firebaseApp.Database(ctx)
+	firestore, err := s.firebaseApp.Firestore(ctx)
 	if err != nil {
 		log.Error(err)
 		return nil, err
 	}
+	defer firestore.Close()
+	fsc := firestorm.New(firestore, "Id", "")
+
+	var dbShortens []entity.Shorten
+	user, err := s.GetUser(userId)
+	if err != nil {
+		log.Infof("Creating new entry for User : %s", userId)
+		user = &entity.User{
+			Id: userId,
+		}
+		err = fsc.NewRequest().CreateEntities(ctx, user)()
+		if err != nil {
+			log.Error(err)
+		}
+	} else {
+		dbShortens, _ = user.GetShortens()
+	}
 
 	var result []entity.Shorten
 
-	var dbShortens []entity.Shorten
-	if err := database.NewRef("users/"+userId+"/shortens").Get(ctx, &dbShortens); err != nil {
-		log.Fatal(err)
-		return nil, err
-	}
-
 	for _, s := range dbShortens {
 		if deleted == nil || !contains(deleted, s.Id) {
-			result = append(result, s)
+			if containsShortenById(shortens, s.Id) {
+				log.Infof("Update Shorten => Id: %s", s.Id)
+			} else {
+				result = append(result, s)
+			}
 		} else {
 			log.Infof("Deleted Shorten => Id: %s", s.Id)
 		}
@@ -112,7 +139,18 @@ func (s *ShortenServiceImpl) Sync(userId string, shortens []entity.Shorten, dele
 		result = append(result, s)
 	}
 
-	if err := database.NewRef("users/"+userId+"/shortens").Set(ctx, result); err != nil {
+	log.Infof("Result value : %v", result)
+
+	payload, err := json.Marshal(result)
+	if err != nil {
+		log.Error(err)
+		return nil, err
+	}
+	log.Infof("JSON : %s", payload)
+
+	_ = user.SaveShortens(result)
+	err = fsc.NewRequest().UpdateEntities(ctx, user)()
+	if err != nil {
 		log.Fatal(err)
 		return nil, err
 	}
@@ -183,6 +221,15 @@ func (s *ShortenServiceImpl) Shorten(shortenType ShortenType, url string) (strin
 func contains(a []string, x string) bool {
 	for _, n := range a {
 		if x == n {
+			return true
+		}
+	}
+	return false
+}
+
+func containsShortenById(a []entity.Shorten, x string) bool {
+	for _, n := range a {
+		if x == n.Id {
 			return true
 		}
 	}

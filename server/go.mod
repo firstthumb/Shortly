@@ -10,6 +10,7 @@ require (
 	github.com/go-resty/resty/v2 v2.1.0
 	github.com/google/wire v0.3.0
 	github.com/gorilla/mux v1.7.3
+	github.com/jschoedt/go-firestorm v0.0.0-20191104142120-1ff4d6f491c5
 	github.com/sirupsen/logrus v1.4.2
 	github.com/stretchr/testify v1.4.0 // indirect
 	golang.org/x/crypto v0.0.0-20190605123033-f99c8df09eb5 // indirect

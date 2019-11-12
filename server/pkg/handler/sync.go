@@ -12,7 +12,6 @@ import (
 )
 
 type SyncRequest struct {
-	UserId   string           `json:"user_id"`
 	Shortens []entity.Shorten `json:"shortens"`
 	Deleted  []string         `json:"deleted"`
 }
@@ -21,12 +20,20 @@ type SyncResponse struct {
 	Shortens []entity.Shorten `json:"shortens"`
 }
 
+type ErrorResponse struct {
+	Message string `json:"message"`
+}
+
 func syncShorten(srv service.ShortenService) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		userId := mux.Vars(r)["userId"]
+		log.Infof("Sync Shortens => UserId : %s", userId)
+
 		body, err := ioutil.ReadAll(r.Body)
 		if err != nil {
 			log.Errorf("Sync Shorten Handler => Could not read request. %v", err)
-			http.Error(w, err.Error(), 500)
+			errorJson, _ := json.Marshal(&ErrorResponse{Message: "Service Failed"})
+			http.Error(w, string(errorJson), 500)
 			return
 		}
 
@@ -34,21 +41,24 @@ func syncShorten(srv service.ShortenService) http.Handler {
 		err = json.Unmarshal(body, request)
 		if err != nil {
 			log.Errorf("Sync Shorten Handler => Could not unmarshal request. %v", err)
-			http.Error(w, err.Error(), 500)
+			errorJson, _ := json.Marshal(&ErrorResponse{Message: "Service Failed"})
+			http.Error(w, string(errorJson), 500)
 			return
 		}
 
-		shortens, err := srv.Sync(request.UserId, request.Shortens, request.Deleted)
+		shortens, err := srv.Sync(userId, request.Shortens, request.Deleted)
 		if err != nil {
 			log.Errorf("Sync Shorten Handler => Could not call shorten service. %v", err)
-			http.Error(w, err.Error(), 500)
+			errorJson, _ := json.Marshal(&ErrorResponse{Message: "Service Failed"})
+			http.Error(w, string(errorJson), 500)
 			return
 		}
 
 		output, err := json.Marshal(SyncResponse{Shortens: shortens})
 		if err != nil {
 			log.Errorf("Shorten Handler => Could not marshal response. %v", err)
-			http.Error(w, err.Error(), 500)
+			errorJson, _ := json.Marshal(&ErrorResponse{Message: "Service Failed"})
+			http.Error(w, string(errorJson), 500)
 			return
 		}
 
@@ -65,14 +75,16 @@ func getSyncShorten(srv service.ShortenService) http.Handler {
 		shortens, err := srv.GetSync(userId)
 		if err != nil {
 			log.Errorf("Sync Shorten Handler => Could not call shorten service. %v", err)
-			http.Error(w, err.Error(), 500)
+			errorJson, _ := json.Marshal(&ErrorResponse{Message: "Service Failed"})
+			http.Error(w, string(errorJson), 500)
 			return
 		}
 
 		output, err := json.Marshal(SyncResponse{Shortens: shortens})
 		if err != nil {
 			log.Errorf("Shorten Handler => Could not marshal response. %v", err)
-			http.Error(w, err.Error(), 500)
+			errorJson, _ := json.Marshal(&ErrorResponse{Message: "Service Failed"})
+			http.Error(w, string(errorJson), 500)
 			return
 		}
 
@@ -82,7 +94,7 @@ func getSyncShorten(srv service.ShortenService) http.Handler {
 }
 
 func MakeSyncShortenHandlers(r *mux.Router, n negroni.Negroni, service service.ShortenService) {
-	r.Handle("/v1/sync", n.With(
+	r.Handle("/v1/sync/{userId}", n.With(
 		negroni.Wrap(syncShorten(service)),
 	)).Methods("POST", "OPTIONS").Name("syncShorten")
 	r.Handle("/v1/sync/{userId}", n.With(
