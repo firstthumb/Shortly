@@ -84,7 +84,8 @@ class ShortenItem extends StatelessWidget {
                 ),
                 FlatButton(
                   child:
-                      shorten.fav ? Icon(Icons.star) : Icon(Icons.star_border),
+                  shorten.fav ?? false ? Icon(Icons.star) : Icon(
+                      Icons.star_border),
                   onPressed: () => onToggle(),
                 ),
               ],

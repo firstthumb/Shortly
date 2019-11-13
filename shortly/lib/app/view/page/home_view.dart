@@ -92,12 +92,14 @@ class _HomeViewState extends State<HomeView> {
                   } else if (state is Loading) {
                     return LoadingWidget();
                   } else if (state is Loaded) {
-                    _sync();
                     return _buildList(context, state.shortens);
-                  } else if (state is Created && state.sharedIntent) {
-                    _copyUrl(state.shorten);
-                    // Testing...
-
+                  } else if (state is Synced) {
+                    return _buildList(context, state.shortens);
+                  } else if (state is Created) {
+                    if (state.sharedIntent) {
+                      _copyUrl(state.shorten);
+                    }
+                    _sync();
                     return null;
                   } else {
                     return Container();

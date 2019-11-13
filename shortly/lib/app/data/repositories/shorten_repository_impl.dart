@@ -1,7 +1,7 @@
 import 'package:dartz/dartz.dart';
 import 'package:meta/meta.dart';
-import 'package:shortly/app/data/datasources/shorten_local_datasource.dart';
-import 'package:shortly/app/data/datasources/shorten_remote_datasource.dart';
+import 'package:shortly/app/data/datasources/local/shorten_local_datasource.dart';
+import 'package:shortly/app/data/datasources/remote/shorten_remote_datasource.dart';
 import 'package:shortly/app/data/models/shorten_model.dart';
 import 'package:shortly/app/domain/entities/shorten.dart';
 import 'package:shortly/app/domain/repositories/shorten_repository.dart';
@@ -96,8 +96,10 @@ class ShortenRepositoryImpl implements ShortenRepository {
     logger.v("Syncing shortens => UserId : $userId");
     try {
       final shortens = await localDataSource.getShortens();
-      final syncedShortens =
-      await remoteDataSource.syncShortens(userId, shortens);
+      final deleted = await localDataSource.getDeletedShortens();
+      final syncedShortens = await remoteDataSource.syncShortens(
+          userId, shortens, deleted);
+      await localDataSource.clearDeletedShortens();
       return Right(syncedShortens.map((model) => model.toEntity()).toList()
         ..sort((a, b) => b.createdAt.compareTo(a.createdAt)));
     } catch (e) {

@@ -38,3 +38,26 @@ class ShortenModelAdapter extends TypeAdapter<ShortenModel> {
       ..write(obj.createdAt);
   }
 }
+
+// **************************************************************************
+// JsonSerializableGenerator
+// **************************************************************************
+
+ShortenModel _$ShortenModelFromJson(Map<String, dynamic> json) {
+  return ShortenModel(
+    id: json['id'] as String,
+    link: json['link'] as String,
+    shortLink: json['short_link'] as String,
+    fav: json['fav'] as bool,
+    createdAt: ShortenModel._dateTimeFromEpoch(json['created_at'] as int),
+  );
+}
+
+Map<String, dynamic> _$ShortenModelToJson(ShortenModel instance) =>
+    <String, dynamic>{
+      'id': instance.id,
+      'link': instance.link,
+      'short_link': instance.shortLink,
+      'fav': instance.fav,
+      'created_at': ShortenModel._dateTimeToEpoch(instance.createdAt),
+    };

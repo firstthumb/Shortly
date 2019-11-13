@@ -13,8 +13,14 @@ abstract class ShortenLocalDataSource {
 
   Future<ShortenModel> saveShorten(ShortenModel model);
 
+  Future<List<String>> getDeletedShortens();
+
+  Future<bool> clearDeletedShortens();
+
   void deleteShorten(String id);
 }
+
+const String KEY_DELETED_SHORTEN_IDS = "DELETED_SHORTEN_IDS";
 
 class ShortenLocalDataSourceImpl implements ShortenLocalDataSource {
   final logger = getLogger('ShortenLocalDataSource');
@@ -57,6 +63,7 @@ class ShortenLocalDataSourceImpl implements ShortenLocalDataSource {
   void deleteShorten(String id) {
     logger.v("Deleting shorten => Id : $id");
     shortenBox.delete(id);
+    _addDeletedShortenId(id);
   }
 
   @override
@@ -68,5 +75,31 @@ class ShortenLocalDataSourceImpl implements ShortenLocalDataSource {
   @override
   Future<List<ShortenModel>> getFavShortens() async {
     return (await getShortens()).where((shorten) => shorten.fav).toList();
+  }
+
+  @override
+  Future<List<String>> getDeletedShortens() {
+    var deletedShortens = shortenBox.get(KEY_DELETED_SHORTEN_IDS);
+    if (deletedShortens == null) {
+      deletedShortens = [];
+    }
+    return deletedShortens;
+  }
+
+  @override
+  Future<bool> clearDeletedShortens() async {
+    await shortenBox.delete(KEY_DELETED_SHORTEN_IDS);
+    return true;
+  }
+
+  void _addDeletedShortenId(String shortenId) {
+    var deletedShortens =
+    shortenBox.get(KEY_DELETED_SHORTEN_IDS);
+    if (deletedShortens == null) {
+      deletedShortens = [];
+    }
+    deletedShortens.add(shortenId);
+    shortenBox.put(KEY_DELETED_SHORTEN_IDS, deletedShortens);
+    logger.v("Deleted Shorten Ids => $deletedShortens");
   }
 }
