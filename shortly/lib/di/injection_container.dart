@@ -71,5 +71,5 @@ Future<void> init() async {
     ],
   )
     ..signInSilently();
-  sl.registerSingleton<GoogleSignIn>(_googleSignIn);
+  sl.registerFactory<GoogleSignIn>(() => _googleSignIn);
 }

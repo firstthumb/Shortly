@@ -2,8 +2,10 @@ import 'dart:convert';
 
 import 'package:http/http.dart';
 import 'package:meta/meta.dart';
+import 'package:shortly/app/data/datasources/remote/requests/requests.dart';
 import 'package:shortly/app/data/datasources/remote/requests/sync_request.dart';
 import 'package:shortly/app/data/datasources/remote/responses/responses.dart';
+import 'package:shortly/app/data/datasources/remote/responses/shorten_response.dart';
 import 'package:shortly/app/data/models/shorten_model.dart';
 import 'package:shortly/core/util/logger.dart';
 
@@ -30,16 +32,25 @@ class ShortenRemoteDataSourceImpl implements ShortenRemoteDataSource {
 
   @override
   Future<ShortenModel> createShorten(String url) async {
+    final request = ShortenRequest(link: url);
+    final payload = jsonEncode(request);
+    logger.v("Payload => $payload");
+
     final response = await client.post(
       SHORTEN_SERVICE + "/shorten",
       headers: {"Content-type": "application/json"},
-      body: '{"link": "$url"}',
+      body: payload,
     );
 
     logger.v("Response : $response");
 
     if (response.statusCode == 200) {
-      return ShortenModel.fromJson(json.decode(response.body));
+      final shortenResponse = ShortenResponse.fromJson(
+          jsonDecode(response.body));
+      return ShortenModel(link: shortenResponse.url,
+          shortLink: shortenResponse.shortUrl,
+          createdAt: DateTime.now().toUtc(),
+          fav: false);
     } else {
       logger.v("Response Status Code : ${response.statusCode}");
       final errorResponse = ErrorResponse.fromJson(jsonDecode(response.body));
