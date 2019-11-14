@@ -70,9 +70,7 @@ class ShortenModel extends Equatable {
       us == null ? null : DateTime.fromMillisecondsSinceEpoch(us, isUtc: true);
 
   static int _dateTimeToEpoch(DateTime dateTime) =>
-      dateTime
-          ?.toUtc()
-          ?.millisecondsSinceEpoch;
+      dateTime?.toUtc()?.millisecondsSinceEpoch;
 
   @override
   String toString() {

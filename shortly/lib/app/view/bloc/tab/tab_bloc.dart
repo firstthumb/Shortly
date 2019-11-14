@@ -1,17 +1,27 @@
 import 'dart:async';
 
 import 'package:bloc/bloc.dart';
+import 'package:shortly/app/view/bloc/blocs.dart';
 import 'package:shortly/app/view/bloc/tab/tab_event.dart';
-import 'package:shortly/app/view/models/app_tab.dart';
 
-class TabBloc extends Bloc<TabEvent, AppTab> {
+class TabBloc extends Bloc<TabEvent, TabState> {
   @override
-  AppTab get initialState => AppTab.home;
+  TabState get initialState => HomeTab();
 
   @override
-  Stream<AppTab> mapEventToState(TabEvent event) async* {
+  Stream<TabState> mapEventToState(TabEvent event) async* {
     if (event is UpdateTab) {
-      yield event.tab;
+      switch (event.tab) {
+        case AppTab.home:
+          yield HomeTab();
+          break;
+        case AppTab.favourites:
+          yield FavouritesTab();
+          break;
+        case AppTab.settings:
+          yield SettingsTab();
+          break;
+      }
     }
   }
 }

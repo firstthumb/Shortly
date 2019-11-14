@@ -2,17 +2,10 @@ import 'package:clipboard_manager/clipboard_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:share/share.dart';
-import 'package:shortly/app/view/bloc/fav/fav_bloc.dart';
-import 'package:shortly/app/view/bloc/fav/fav_event.dart';
-import 'package:shortly/app/view/bloc/fav/fav_state.dart';
-import 'package:shortly/app/view/bloc/shorten/shorten_event.dart';
-import 'package:shortly/app/view/widgets/loading_widget.dart';
-import 'package:shortly/app/view/widgets/shorten_item.dart';
+import 'package:shortly/app/domain/entities/shorten.dart';
+import 'package:shortly/app/view/bloc/blocs.dart';
+import 'package:shortly/app/view/widgets/widgets.dart';
 import 'package:shortly/core/util/logger.dart';
-
-import '../../domain/entities/shorten.dart';
-import '../bloc/blocs.dart';
-import '../bloc/shorten/shorten_bloc.dart';
 
 class FavouriteView extends StatefulWidget {
   @override
@@ -24,12 +17,10 @@ class _FavouriteViewState extends State<FavouriteView> {
 
   final GlobalKey<AnimatedListState> listKey = GlobalKey<AnimatedListState>();
 
-
   @override
   void initState() {
     super.initState();
-    BlocProvider.of<FavBloc>(context)
-        .add(FavListEvent());
+    BlocProvider.of<FavBloc>(context).add(FavListEvent());
   }
 
   @override

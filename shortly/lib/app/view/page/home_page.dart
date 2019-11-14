@@ -2,16 +2,12 @@ import 'package:beauty_navigation/beauty_navigation.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:shortly/app/view/bloc/fav/fav_bloc.dart';
-import 'package:shortly/app/view/bloc/shorten/shorten_bloc.dart';
-import 'package:shortly/app/view/bloc/shorten/shorten_event.dart';
-import 'package:shortly/app/view/bloc/tab/tab.dart';
-import 'package:shortly/app/view/models/app_tab.dart';
-import 'package:shortly/app/view/page/settings_view.dart';
+import 'package:shortly/app/view/bloc/blocs.dart';
 import 'package:shortly/di/injection_container.dart';
 
 import 'favourite_view.dart';
 import 'home_view.dart';
+import 'settings_view.dart';
 
 class HomePage extends StatelessWidget {
   @override
@@ -30,16 +26,28 @@ class HomePage extends StatelessWidget {
           builder: (_) => sl<TabBloc>(),
         ),
       ],
-      child: BlocBuilder<TabBloc, AppTab>(
+      child: BlocBuilder<TabBloc, TabState>(
         builder: (context, activeTab) {
           return Scaffold(
-            body: activeTab == AppTab.home ? HomeView() : (activeTab ==
-                AppTab.favourites ? FavouriteView() : SettingsView()),
+            body: _getTabItem(activeTab.currentTab),
             bottomNavigationBar: _buildNavigation(context),
           );
         },
       ),
     );
+  }
+
+  Widget _getTabItem(AppTab tab) {
+    switch (tab) {
+      case AppTab.home:
+        return HomeView();
+      case AppTab.favourites:
+        return FavouriteView();
+      case AppTab.settings:
+        return SettingsView();
+    }
+
+    return HomeView();
   }
 
   Widget _buildNavigation(BuildContext context) {

@@ -1,3 +1,9 @@
+export './fav/fav_bloc.dart';
+export './fav/fav_event.dart';
+export './fav/fav_state.dart';
 export './shorten/shorten_bloc.dart';
 export './shorten/shorten_event.dart';
 export './shorten/shorten_state.dart';
+export './tab/tab_bloc.dart';
+export './tab/tab_event.dart';
+export './tab/tab_state.dart';

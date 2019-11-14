@@ -1,7 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:meta/meta.dart';
-import 'package:shortly/app/data/datasources/local/shorten_local_datasource.dart';
-import 'package:shortly/app/data/datasources/remote/shorten_remote_datasource.dart';
+import 'package:shortly/app/data/datasources/datasources.dart';
 import 'package:shortly/app/data/models/shorten_model.dart';
 import 'package:shortly/app/domain/entities/shorten.dart';
 import 'package:shortly/app/domain/repositories/shorten_repository.dart';
@@ -69,7 +68,8 @@ class ShortenRepositoryImpl implements ShortenRepository {
               id: id,
               link: shorten.link,
               shortLink: shorten.shortLink,
-              fav: !shorten.fav)));
+              fav: !shorten.fav,
+              createdAt: DateTime.now().toUtc())));
       return Right(savedShortenModel.toEntity());
     } on Error catch (e) {
       logger.e("Could not toggle fav: $e");
@@ -97,8 +97,8 @@ class ShortenRepositoryImpl implements ShortenRepository {
     try {
       final shortens = await localDataSource.getShortens();
       final deleted = await localDataSource.getDeletedShortens();
-      final syncedShortens = await remoteDataSource.syncShortens(
-          userId, shortens, deleted);
+      final syncedShortens =
+      await remoteDataSource.syncShortens(userId, shortens, deleted);
       await localDataSource.clearDeletedShortens();
       return Right(syncedShortens.map((model) => model.toEntity()).toList()
         ..sort((a, b) => b.createdAt.compareTo(a.createdAt)));

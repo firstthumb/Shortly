@@ -4,7 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:receive_sharing_intent/receive_sharing_intent.dart';
 import 'package:share/share.dart';
-import 'package:shortly/app/view/bloc/shorten/shorten_event.dart';
+import 'package:shortly/app/view/bloc/blocs.dart';
 import 'package:shortly/app/view/widgets/beauty_textfield.dart';
 import 'package:shortly/app/view/widgets/loading_widget.dart';
 import 'package:shortly/app/view/widgets/shorten_item.dart';
@@ -13,8 +13,6 @@ import 'package:shortly/di/injection_container.dart';
 import 'package:toast/toast.dart';
 
 import '../../domain/entities/shorten.dart';
-import '../bloc/blocs.dart';
-import '../bloc/shorten/shorten_bloc.dart';
 
 class HomeView extends StatefulWidget {
   @override
@@ -75,9 +73,7 @@ class _HomeViewState extends State<HomeView> {
               onTap: () {
                 print('Click');
               },
-              onChanged: (t) {
-
-              },
+              onChanged: (t) {},
               onSubmitted: (inputUrl) {
                 BlocProvider.of<ShortenBloc>(context)
                     .add(CreateShortenEvent(link: inputUrl));
