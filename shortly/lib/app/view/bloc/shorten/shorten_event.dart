@@ -42,9 +42,11 @@ class ToggleFavShortenEvent extends ShortenEvent {
 
 class SyncShortenEvent extends ShortenEvent {
   final String userId;
+  final bool silent;
 
-  SyncShortenEvent({this.userId}) : super([userId]);
+  SyncShortenEvent({this.userId, this.silent = false})
+      : super([userId, silent]);
 
   @override
-  String toString() => 'SyncShortenEvent{id: $userId}';
+  String toString() => 'SyncShortenEvent{id: $userId, silent: $silent}';
 }

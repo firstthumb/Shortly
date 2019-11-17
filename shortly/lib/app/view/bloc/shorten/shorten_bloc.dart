@@ -48,7 +48,9 @@ class ShortenBloc extends Bloc<ShortenEvent, ShortenState> {
       yield* _mapDeleteShortenToState(
           await deleteShorten(DeleteShortenParam(id: event.id)));
     } else if (event is SyncShortenEvent) {
-      yield Syncing();
+      if (!event.silent) {
+        yield Syncing();
+      }
       yield* _mapSyncShortenToState(
           await syncShorten(SyncShortenUseCaseParam(userId: event.userId)));
     }
@@ -106,7 +108,17 @@ class ShortenBloc extends Bloc<ShortenEvent, ShortenState> {
     yield either.fold(
           (failure) => Error(message: "Toggle fav shorten failed : $failure"),
           (result) {
-        if (state is Loaded) {
+        if (state is Synced) {
+          final List<Shorten> updatedShorten =
+          (state as Synced).shortens.map((shorten) {
+            if (shorten.id == result.id) {
+              return result;
+            }
+            return shorten;
+          }).toList();
+
+          return Loaded(shortens: updatedShorten);
+        } else if (state is Loaded) {
           final List<Shorten> updatedShorten =
           (state as Loaded).shortens.map((shorten) {
             if (shorten.id == result.id) {

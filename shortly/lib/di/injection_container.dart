@@ -1,5 +1,4 @@
 import 'package:get_it/get_it.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 import 'package:hive/hive.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
@@ -59,13 +58,4 @@ Future<void> init() async {
 
   // Http Client
   sl.registerLazySingleton(() => http.Client());
-
-  // Google SignIn
-  final _googleSignIn = GoogleSignIn(
-    scopes: [
-      'email',
-    ],
-  )
-    ..signInSilently();
-  sl.registerFactory<GoogleSignIn>(() => _googleSignIn);
 }

@@ -78,10 +78,10 @@ class ShortenLocalDataSourceImpl implements ShortenLocalDataSource {
   }
 
   @override
-  Future<List<String>> getDeletedShortens() {
+  Future<List<String>> getDeletedShortens() async {
     var deletedShortens = shortenBox.get(KEY_DELETED_SHORTEN_IDS);
     if (deletedShortens == null) {
-      deletedShortens = [];
+      deletedShortens = List<String>();
     }
     return deletedShortens;
   }
@@ -96,7 +96,7 @@ class ShortenLocalDataSourceImpl implements ShortenLocalDataSource {
     var deletedShortens =
     shortenBox.get(KEY_DELETED_SHORTEN_IDS);
     if (deletedShortens == null) {
-      deletedShortens = [];
+      deletedShortens = List<String>();
     }
     deletedShortens.add(shortenId);
     shortenBox.put(KEY_DELETED_SHORTEN_IDS, deletedShortens);

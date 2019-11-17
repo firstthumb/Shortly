@@ -8,7 +8,6 @@ import 'package:shortly/app/view/bloc/blocs.dart';
 import 'package:shortly/app/view/widgets/loading_widget.dart';
 import 'package:shortly/app/view/widgets/shorten_item.dart';
 import 'package:shortly/core/util/logger.dart';
-import 'package:shortly/di/injection_container.dart';
 import 'package:toast/toast.dart';
 
 import '../../domain/entities/shorten.dart';
@@ -23,6 +22,9 @@ class _HomeViewState extends State<HomeView> {
 
   final GlobalKey<AnimatedListState> listKey = GlobalKey<AnimatedListState>();
   final TextEditingController _controller = new TextEditingController();
+
+  GoogleSignIn _googleSignIn;
+  GoogleSignInAccount _currentUser;
 
   @override
   void initState() {
@@ -44,6 +46,18 @@ class _HomeViewState extends State<HomeView> {
       Toast.show("Copied to clipboard", context,
           duration: Toast.LENGTH_LONG, gravity: Toast.CENTER);
     });
+
+    _googleSignIn = GoogleSignIn(
+      scopes: [
+        'email',
+      ],
+    );
+    _googleSignIn.onCurrentUserChanged.listen((GoogleSignInAccount account) {
+      setState(() {
+        _currentUser = account;
+      });
+    });
+    _googleSignIn.signInSilently();
   }
 
   @override
@@ -110,6 +124,9 @@ class _HomeViewState extends State<HomeView> {
                 ),
                 onChanged: (value) {},
                 onSubmitted: (value) {
+                  if (value == null || value.isEmpty) {
+                    return;
+                  }
                   BlocProvider.of<ShortenBloc>(context)
                       .add(CreateShortenEvent(link: value));
                   _controller.clear();
@@ -147,13 +164,15 @@ class _HomeViewState extends State<HomeView> {
           ),
           RawMaterialButton(
             child: Icon(
-              Icons.web,
+              Icons.sync,
               color: Colors.white,
               size: 32.0,
             ),
             shape: CircleBorder(),
             padding: const EdgeInsets.all(4.0),
-            onPressed: () {},
+            onPressed: () {
+              _sync(false);
+            },
           ),
         ],
       ),
@@ -182,7 +201,7 @@ class _HomeViewState extends State<HomeView> {
               builder: (context, state) {
                 if (state is Empty) {
                   return Container();
-                } else if (state is Loading) {
+                } else if (state is Loading || state is Syncing) {
                   return LoadingWidget();
                 } else if (state is Loaded) {
                   return _buildList(context, state.shortens);
@@ -192,7 +211,7 @@ class _HomeViewState extends State<HomeView> {
                   if (state.sharedIntent) {
                     _copyUrl(state.shorten);
                   }
-                  _sync();
+                  _sync(true);
                   return null;
                 } else {
                   return Container();
@@ -289,14 +308,25 @@ class _HomeViewState extends State<HomeView> {
         .add(CreateShortenEvent(link: inputUrl));
   }
 
-  void _sync() {
-    final currentUser = sl<GoogleSignIn>().currentUser;
+  void _sync(bool silent) {
+    final currentUser = _googleSignIn.currentUser;
     if (currentUser != null) {
       logger.v("Logged User : $currentUser");
       BlocProvider.of<ShortenBloc>(context)
-          .add(SyncShortenEvent(userId: currentUser.id));
+          .add(SyncShortenEvent(userId: currentUser.id, silent: silent));
+      final snackBar = SnackBar(
+        content: Text('Synced'),
+        duration: Duration(seconds: 1),
+      );
+      Scaffold.of(context).showSnackBar(snackBar);
     } else {
       logger.v("Not logged in yet...");
+      final snackBar = SnackBar(
+        content: Text('Please login with your account'),
+        duration: Duration(seconds: 2),
+        backgroundColor: Colors.redAccent,
+      );
+      Scaffold.of(context).showSnackBar(snackBar);
     }
   }
 }
