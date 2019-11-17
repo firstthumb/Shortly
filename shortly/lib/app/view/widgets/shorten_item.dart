@@ -31,7 +31,7 @@ class ShortenItem extends StatelessWidget {
       direction: DismissDirection.endToStart,
       background: _slideLeftBackground(),
       onDismissed: onDismissed,
-      child: _buildItem(),
+      child: _buildList(context),
     );
   }
 
@@ -52,47 +52,136 @@ class ShortenItem extends StatelessWidget {
     }
   }
 
-  Widget _buildItem() {
-    return Card(
-      child: Column(
-        children: <Widget>[
-          ListTile(
-            leading: Icon(Icons.arrow_right),
-            title: Text(
-              "${shorten.link}",
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
+  Widget _buildList(BuildContext context) {
+    return InkWell(
+      child: Container(
+        width: double.infinity,
+        margin: EdgeInsets.symmetric(vertical: 3.0, horizontal: 12.0),
+        padding: EdgeInsets.symmetric(vertical: 8.0),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(4.0),
+          color: Colors.white,
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Padding(
+              padding: const EdgeInsets.only(left: 16.0, top: 2.0, right: 16.0),
+              child: Icon(
+                Icons.web_asset,
+                size: 24.0,
+                color: Theme
+                    .of(context)
+                    .accentColor,
+              ),
             ),
-            subtitle: Text("${shorten.shortLink}"),
-            trailing: new PopupMenuButton(
-              icon: Icon(Icons.more_vert),
-              onSelected: (selectedDropDownItem) =>
-                  handlePopUpChanged(selectedDropDownItem),
-              itemBuilder: (BuildContext context) => _listTilePopupMenuItems(),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Text(
+                    shorten.shortLink,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: Colors.black.withOpacity(0.65),
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14.0,
+                    ),
+                  ),
+                  SizedBox(height: 6.0),
+                  Row(
+                    children: <Widget>[
+                      Icon(
+                        Icons.timelapse,
+                        color: Theme
+                            .of(context)
+                            .accentColor,
+                        size: 16.0,
+                      ),
+                      SizedBox(width: 6.0),
+                      Expanded(
+                        child: Row(
+                          children: <Widget>[
+                            Expanded(
+                              child: Text(
+                                shorten.link,
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
+                                style: TextStyle(
+                                    fontSize: 12.0,
+                                    color: Colors.black.withOpacity(0.55),
+                                    fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 6.0),
+                  Row(
+                    children: <Widget>[
+                      RawMaterialButton(
+                        child: Icon(
+                          Icons.content_copy,
+                          color: Theme
+                              .of(context)
+                              .accentColor,
+                          size: 16.0,
+                        ),
+                        shape: CircleBorder(),
+                        padding: const EdgeInsets.all(4.0),
+                        onPressed: () => onCopy(),
+                      ),
+                      SizedBox(width: 6.0),
+                      RawMaterialButton(
+                        child: Icon(
+                          Icons.share,
+                          color: Theme
+                              .of(context)
+                              .accentColor,
+                          size: 16.0,
+                        ),
+                        shape: CircleBorder(),
+                        padding: const EdgeInsets.all(4.0),
+                        onPressed: () => onShare(),
+                      ),
+                      SizedBox(width: 6.0),
+                      RawMaterialButton(
+                        child: Icon(
+                          shorten.fav ?? false ? Icons.star : Icons.star_border,
+                          color: Theme
+                              .of(context)
+                              .accentColor,
+                          size: 16.0,
+                        ),
+                        shape: CircleBorder(),
+                        padding: const EdgeInsets.all(4.0),
+                        onPressed: () => onToggle(),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
-          ),
-          ButtonTheme.bar(
-            child: ButtonBar(
-              children: <Widget>[
-                FlatButton(
-                  child: Icon(Icons.content_copy),
-                  onPressed: () => onCopy(),
-                ),
-                FlatButton(
-                  child: Icon(Icons.share),
-                  onPressed: () => onShare(),
-                ),
-                FlatButton(
-                  child:
-                  shorten.fav ?? false ? Icon(Icons.star) : Icon(
-                      Icons.star_border),
-                  onPressed: () => onToggle(),
-                ),
-              ],
-            ),
-          ),
-        ],
+            _buildPopupMenu(),
+          ],
+        ),
       ),
+      onTap: () {},
+    );
+  }
+
+  Widget _buildPopupMenu() {
+    return new PopupMenuButton(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 2.0),
+        child: Icon(Icons.more_vert,
+            size: 24.0, color: Colors.black.withOpacity(0.65)),
+      ),
+      onSelected: (selectedDropDownItem) =>
+          handlePopUpChanged(selectedDropDownItem),
+      itemBuilder: (BuildContext context) => _listTilePopupMenuItems(),
     );
   }
 
@@ -126,16 +215,27 @@ class ShortenItem extends StatelessWidget {
   }
 
   List<PopupMenuItem> _listTilePopupMenuItems() {
-    return [
-      PopupMenuItem(
-        child: Text("Open"),
-        value: PopupAction.OPEN_URL,
-      ),
-      PopupMenuItem(
-        child: Text("Show Stats"),
-        value: PopupAction.SHOW_STATS,
-      ),
-    ];
+    final Map<PopupAction, String> optionMenuItems = {
+      PopupAction.OPEN_URL: 'Open',
+      PopupAction.SHOW_STATS: 'Show Stats',
+    };
+
+    return optionMenuItems.keys
+        .map(
+          (PopupAction item) =>
+          PopupMenuItem(
+            value: item,
+            child: Text(
+              optionMenuItems[item],
+              style: TextStyle(
+                fontSize: 14.0,
+                fontWeight: FontWeight.bold,
+                color: Colors.black.withOpacity(0.65),
+              ),
+            ),
+          ),
+    )
+        .toList();
   }
 
   void _openUrl(String url) async {

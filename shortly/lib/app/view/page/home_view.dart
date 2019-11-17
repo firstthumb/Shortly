@@ -5,7 +5,6 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:receive_sharing_intent/receive_sharing_intent.dart';
 import 'package:share/share.dart';
 import 'package:shortly/app/view/bloc/blocs.dart';
-import 'package:shortly/app/view/widgets/beauty_textfield.dart';
 import 'package:shortly/app/view/widgets/loading_widget.dart';
 import 'package:shortly/app/view/widgets/shorten_item.dart';
 import 'package:shortly/core/util/logger.dart';
@@ -53,58 +52,162 @@ class _HomeViewState extends State<HomeView> {
     super.dispose();
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-        padding: EdgeInsets.only(top: 50),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
+  Widget _buildMain() {
+    return SingleChildScrollView(
+      child: Container(
+        height: MediaQuery
+            .of(context)
+            .size
+            .height,
+        width: MediaQuery
+            .of(context)
+            .size
+            .width,
+        child: Stack(
           children: <Widget>[
-            BeautyTextField(
-              controller: _controller,
-              width: double.maxFinite,
-              height: 60,
-              duration: Duration(milliseconds: 300),
-              inputType: TextInputType.text,
-              prefixIcon: Icon(
-                Icons.link,
-              ),
-              placeholder: "Write your URL",
-              onTap: () {
-                print('Click');
-              },
-              onChanged: (t) {},
-              onSubmitted: (inputUrl) {
-                BlocProvider.of<ShortenBloc>(context)
-                    .add(CreateShortenEvent(link: inputUrl));
-                _controller.clear();
-              },
-            ),
-            Expanded(
-              child: BlocBuilder<ShortenBloc, ShortenState>(
-                builder: (context, state) {
-                  if (state is Empty) {
-                    return Container();
-                  } else if (state is Loading) {
-                    return LoadingWidget();
-                  } else if (state is Loaded) {
-                    return _buildList(context, state.shortens);
-                  } else if (state is Synced) {
-                    return _buildList(context, state.shortens);
-                  } else if (state is Created) {
-                    if (state.sharedIntent) {
-                      _copyUrl(state.shorten);
-                    }
-                    _sync();
-                    return null;
-                  } else {
-                    return Container();
-                  }
+            _buildSearchResult(),
+            _buildAppBar(),
+            _buildSearchField(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSearchField() {
+    return Container(
+      child: Column(
+        children: <Widget>[
+          SizedBox(height: 90.0),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16.0),
+            child: Material(
+              elevation: 2.0,
+              borderRadius: BorderRadius.all(Radius.circular(4.0)),
+              child: TextField(
+                controller: _controller,
+                cursorColor: Colors.black.withOpacity(0.65),
+                style: TextStyle(
+                    color: Colors.black.withOpacity(0.65),
+                    fontSize: 18.0,
+                    fontWeight: FontWeight.bold),
+                decoration: InputDecoration(
+                  border: InputBorder.none,
+                  contentPadding:
+                  EdgeInsets.symmetric(horizontal: 32.0, vertical: 14.0),
+                  hintText: 'Write your URL',
+                  hintStyle: TextStyle(color: Colors.grey, fontSize: 16.0),
+                  prefixIcon: Material(
+                    elevation: 0.0,
+                    borderRadius: BorderRadius.all(Radius.circular(4.0)),
+                    child: Icon(
+                      Icons.search,
+                      color: Theme
+                          .of(context)
+                          .accentColor,
+                    ),
+                  ),
+                ),
+                onChanged: (value) {},
+                onSubmitted: (value) {
+                  BlocProvider.of<ShortenBloc>(context)
+                      .add(CreateShortenEvent(link: value));
+                  _controller.clear();
                 },
               ),
             ),
-          ],
-        ));
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAppBar() {
+    return Container(
+      height: 120.0,
+      width: double.infinity,
+      decoration: BoxDecoration(color: Theme
+          .of(context)
+          .primaryColor),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: <Widget>[
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 28.0),
+              child: Text(
+                'Shortly',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 20.0,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ),
+          RawMaterialButton(
+            child: Icon(
+              Icons.web,
+              color: Colors.white,
+              size: 32.0,
+            ),
+            shape: CircleBorder(),
+            padding: const EdgeInsets.all(4.0),
+            onPressed: () {},
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSearchResult() {
+    return Container(
+      padding: EdgeInsets.only(top: 120.0),
+      height: double.infinity,
+      width: double.infinity,
+      color: Colors.grey[200],
+      child: ScrollConfiguration(
+        behavior: ScrollBehavior(),
+        child: GlowingOverscrollIndicator(
+          axisDirection: AxisDirection.down,
+          color: Theme
+              .of(context)
+              .accentColor,
+          child: Container(
+            height: MediaQuery
+                .of(context)
+                .size
+                .height,
+            child: BlocBuilder<ShortenBloc, ShortenState>(
+              builder: (context, state) {
+                if (state is Empty) {
+                  return Container();
+                } else if (state is Loading) {
+                  return LoadingWidget();
+                } else if (state is Loaded) {
+                  return _buildList(context, state.shortens);
+                } else if (state is Synced) {
+                  return _buildList(context, state.shortens);
+                } else if (state is Created) {
+                  if (state.sharedIntent) {
+                    _copyUrl(state.shorten);
+                  }
+                  _sync();
+                  return null;
+                } else {
+                  return Container();
+                }
+              },
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return _buildMain();
   }
 
   Widget _buildList(BuildContext context, List<Shorten> shortens) {

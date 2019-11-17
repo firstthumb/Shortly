@@ -11,7 +11,6 @@ dependencies:
     sdk: flutter
 
   cupertino_icons: ^0.1.2
-  beauty_navigation: any
   intl: ^0.15.8
   get_it: ^2.0.1
   flutter_bloc: ^2.0.0 #^0.21.0
@@ -38,7 +37,7 @@ dependencies:
   cloud_firestore: ^0.12.9+5
   google_sign_in: ^4.0.11
   json_annotation: ^3.0.0
-
+  bottom_navy_bar: ^5.2.2
 
 dependency_overrides:
   rxdart: ^0.22.0

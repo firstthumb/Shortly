@@ -25,28 +25,93 @@ class _FavouriteViewState extends State<FavouriteView> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-        padding: EdgeInsets.only(top: 50),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
+    return _buildMain();
+  }
+
+  Widget _buildMain() {
+    return SingleChildScrollView(
+      child: Container(
+        height: MediaQuery
+            .of(context)
+            .size
+            .height,
+        width: MediaQuery
+            .of(context)
+            .size
+            .width,
+        child: Stack(
           children: <Widget>[
-            Expanded(
-              child: BlocBuilder<FavBloc, FavState>(
-                builder: (context, state) {
-                  if (state is FavEmpty) {
-                    return Container();
-                  } else if (state is FavLoading) {
-                    return LoadingWidget();
-                  } else if (state is FavLoaded) {
-                    return _buildList(context, state.shortens);
-                  } else {
-                    return null;
-                  }
-                },
+            _buildFavResult(),
+            _buildAppBar(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAppBar() {
+    return Container(
+      height: 120.0,
+      width: double.infinity,
+      decoration: BoxDecoration(color: Theme
+          .of(context)
+          .primaryColor),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: <Widget>[
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 28.0),
+              child: Text(
+                'Bookmarks',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 20.0,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
-          ],
-        ));
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFavResult() {
+    return Container(
+      padding: EdgeInsets.only(top: 120.0),
+      height: double.infinity,
+      width: double.infinity,
+      color: Colors.grey[200],
+      child: ScrollConfiguration(
+        behavior: ScrollBehavior(),
+        child: GlowingOverscrollIndicator(
+          axisDirection: AxisDirection.down,
+          color: Theme
+              .of(context)
+              .accentColor,
+          child: Container(
+            height: MediaQuery
+                .of(context)
+                .size
+                .height,
+            child: BlocBuilder<FavBloc, FavState>(
+              builder: (context, state) {
+                if (state is FavEmpty) {
+                  return Container();
+                } else if (state is FavLoading) {
+                  return LoadingWidget();
+                } else if (state is FavLoaded) {
+                  return _buildList(context, state.shortens);
+                } else {
+                  return null;
+                }
+              },
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
   Widget _buildList(BuildContext context, List<Shorten> shortens) {
