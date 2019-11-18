@@ -8,6 +8,8 @@ import 'app/view/page/home_page.dart';
 import 'di/injection_container.dart' as di;
 
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
   Logger.level = Level.verbose;
   await di.init();
   BlocSupervisor.delegate = SimpleBlocDelegate();
