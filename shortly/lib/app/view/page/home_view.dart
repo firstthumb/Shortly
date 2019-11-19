@@ -1,14 +1,16 @@
-import 'package:clipboard_manager/clipboard_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:receive_sharing_intent/receive_sharing_intent.dart';
 import 'package:share/share.dart';
+import 'package:shortly/app/util/notification_utils.dart';
+import 'package:shortly/app/util/utils.dart';
 import 'package:shortly/app/view/bloc/blocs.dart';
 import 'package:shortly/app/view/widgets/loading_widget.dart';
 import 'package:shortly/app/view/widgets/shorten_item.dart';
 import 'package:shortly/core/util/logger.dart';
 import 'package:toast/toast.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../domain/entities/shorten.dart';
 
@@ -30,22 +32,7 @@ class _HomeViewState extends State<HomeView> {
   void initState() {
     super.initState();
 
-    ReceiveSharingIntent.getInitialText().then((String value) {
-      if (value == null || !Uri
-          .parse(value)
-          .isAbsolute) {
-        return;
-      }
-
-      // Don't call the callback again
-      ReceiveSharingIntent.reset();
-
-      logger.v("Shared Text : $value");
-      _shortenUrlAndCopyClipBoard(value);
-
-      Toast.show("Copied to clipboard", context,
-          duration: Toast.LENGTH_LONG, gravity: Toast.CENTER);
-    });
+    _checkSharingText();
 
     _googleSignIn = GoogleSignIn(
       scopes: [
@@ -58,6 +45,11 @@ class _HomeViewState extends State<HomeView> {
       });
     });
     _googleSignIn.signInSilently();
+
+    _checkClipboardAndPaste();
+
+    NotificationUtils _notificationUtils = new NotificationUtils();
+    _notificationUtils.scheduleNotification();
   }
 
   @override
@@ -289,13 +281,14 @@ class _HomeViewState extends State<HomeView> {
 
   void _copyUrl(Shorten shorten) {
     logger.v("Copied to clipboard : ${shorten.shortLink}");
-    ClipboardManager.copyToClipBoard(shorten.shortLink).then((result) {
-      final snackBar = SnackBar(
-        content: Text('Copied to Clipboard'),
-        duration: Duration(seconds: 2),
-      );
-      Scaffold.of(context).showSnackBar(snackBar);
-    });
+
+    setClipBoardData(shorten.shortLink);
+
+    final snackBar = SnackBar(
+      content: Text('Copied to Clipboard'),
+      duration: Duration(seconds: 2),
+    );
+    Scaffold.of(context).showSnackBar(snackBar);
   }
 
   void _shareShorten(Shorten shorten) {
@@ -328,5 +321,42 @@ class _HomeViewState extends State<HomeView> {
       );
       Scaffold.of(context).showSnackBar(snackBar);
     }
+  }
+
+  void _checkClipboardAndPaste() async {
+    final data = await getClipBoardData();
+    if (data != null) {
+      if (await canLaunch(data)) {
+        _controller.text = data;
+        setClipBoardData(null);
+      }
+    }
+  }
+
+  void _processSharingText(String value) {
+    if (value == null || !Uri
+        .parse(value)
+        .isAbsolute) {
+      return;
+    }
+
+    // Don't call the callback again
+    ReceiveSharingIntent.reset();
+
+    logger.v("Shared Text : $value");
+    _shortenUrlAndCopyClipBoard(value);
+
+    Toast.show("Copied to clipboard", context,
+        duration: Toast.LENGTH_LONG, gravity: Toast.CENTER);
+  }
+
+  void _checkSharingText() {
+    ReceiveSharingIntent.getInitialText().then((String value) {
+      _processSharingText(value);
+    });
+
+    ReceiveSharingIntent.getTextStream().listen((String value) {
+      _processSharingText(value);
+    });
   }
 }

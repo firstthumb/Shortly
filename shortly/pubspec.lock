@@ -8,6 +8,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.38.5"
+  android_intent:
+    dependency: "direct main"
+    description:
+      name: android_intent
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.2.1"
   animator:
     dependency: "direct main"
     description:
@@ -127,13 +134,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.0.2"
-  clipboard_manager:
-    dependency: "direct main"
-    description:
-      name: clipboard_manager
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.0.4"
   cloud_firestore:
     dependency: "direct main"
     description:
@@ -258,6 +258,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.2.6"
+  flutter_local_notifications:
+    dependency: "direct main"
+    description:
+      name: flutter_local_notifications
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.8.4+2"
   flutter_test:
     dependency: "direct dev"
     description: flutter
