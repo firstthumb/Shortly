@@ -1,8 +1,8 @@
-import 'package:clipboard_manager/clipboard_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:share/share.dart';
 import 'package:shortly/app/domain/entities/shorten.dart';
+import 'package:shortly/app/util/utils.dart';
 import 'package:shortly/app/view/bloc/blocs.dart';
 import 'package:shortly/app/view/widgets/widgets.dart';
 import 'package:shortly/core/util/logger.dart';
@@ -144,12 +144,13 @@ class _FavouriteViewState extends State<FavouriteView> {
 
   void _copyUrl(Shorten shorten) {
     logger.v("Copied to clipboard : ${shorten.shortLink}");
-    ClipboardManager.copyToClipBoard(shorten.shortLink).then((result) {
-      final snackBar = SnackBar(
-        content: Text('Copied to Clipboard'),
-      );
-      Scaffold.of(context).showSnackBar(snackBar);
-    });
+
+    setClipBoardData(shorten.shortLink);
+
+    final snackBar = SnackBar(
+      content: Text('Copied to Clipboard'),
+    );
+    Scaffold.of(context).showSnackBar(snackBar);
   }
 
   void _shareShorten(Shorten shorten) {
