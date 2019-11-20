@@ -7,7 +7,7 @@ part 'sync_response.g.dart';
 
 @JsonSerializable()
 class SyncResponse extends Equatable {
-  @JsonKey(name: 'shortens')
+  @JsonKey(name: 'shortens', nullable: true)
   final List<ShortenModel> shortens;
 
   SyncResponse({

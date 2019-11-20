@@ -1,7 +1,7 @@
 name: shortly
 description: A new Flutter application.
 
-version: 1.0.0+1
+version: 1.0.0+3
 
 environment:
   sdk: ">=2.1.0 <3.0.0"
@@ -13,7 +13,7 @@ dependencies:
   cupertino_icons: ^0.1.2
   intl: ^0.15.8
   get_it: ^2.0.1
-  flutter_bloc: ^2.0.0 #^0.21.0
+  flutter_bloc: ^2.0.0
   bloc: ^2.0.0
   equatable: ^0.4.0
   dartz: ^0.8.6
@@ -38,7 +38,7 @@ dependencies:
   json_annotation: ^3.0.0
   bottom_navy_bar: ^5.2.2
   flutter_local_notifications: ^0.8.4+2
-  android_intent: "^0.2.1"
+  android_intent: ^0.2.1
 
 dependency_overrides:
   rxdart: ^0.22.0

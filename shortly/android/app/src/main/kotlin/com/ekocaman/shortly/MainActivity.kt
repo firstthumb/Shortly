@@ -1,6 +1,5 @@
 package com.ekocaman.shortly
 
-import android.content.Intent
 import android.os.Bundle
 
 import io.flutter.app.FlutterActivity
