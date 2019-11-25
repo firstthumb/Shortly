@@ -1,7 +1,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:meta/meta.dart';
 
-enum AppTab { home, favourites, settings }
+enum AppTab { home, settings }
 
 @immutable
 abstract class TabState extends Equatable {
@@ -12,16 +12,6 @@ abstract class TabState extends Equatable {
 
 class HomeTab extends TabState {
   final AppTab tab = AppTab.home;
-
-  @override
-  List get props => [tab];
-
-  @override
-  AppTab get currentTab => tab;
-}
-
-class FavouritesTab extends TabState {
-  final AppTab tab = AppTab.favourites;
 
   @override
   List get props => [tab];

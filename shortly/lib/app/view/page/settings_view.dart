@@ -47,7 +47,6 @@ class _SettingsViewState extends State<SettingsView> {
                 title: 'Select Provider',
                 values: {
                   '0': 'www.tikitok.tk',
-                  '1': 'www.share.tk',
                 },
                 defaultKey: "0",
               ),

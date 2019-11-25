@@ -15,9 +15,6 @@ class TabBloc extends Bloc<TabEvent, TabState> {
         case AppTab.home:
           yield HomeTab();
           break;
-        case AppTab.favourites:
-          yield FavouritesTab();
-          break;
         case AppTab.settings:
           yield SettingsTab();
           break;

@@ -5,7 +5,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shortly/app/view/bloc/blocs.dart';
 import 'package:shortly/di/injection_container.dart';
 
-import 'favourite_view.dart';
 import 'home_view.dart';
 import 'settings_view.dart';
 
@@ -50,14 +49,11 @@ class HomePage extends StatelessWidget {
         if (index == 0) {
           BlocProvider.of<TabBloc>(context).add(UpdateTab(AppTab.home));
         } else if (index == 1) {
-          BlocProvider.of<TabBloc>(context).add(UpdateTab(AppTab.favourites));
-        } else {
           BlocProvider.of<TabBloc>(context).add(UpdateTab(AppTab.settings));
         }
       },
       children: <Widget>[
         HomeView(),
-        FavouriteView(),
         SettingsView(),
       ],
     );
@@ -67,10 +63,8 @@ class HomePage extends StatelessWidget {
     switch (tab) {
       case AppTab.home:
         return 0;
-      case AppTab.favourites:
-        return 1;
       case AppTab.settings:
-        return 2;
+        return 1;
     }
 
     return 0;
@@ -88,10 +82,6 @@ class HomePage extends StatelessWidget {
           activeColor: Colors.red,
         ),
         BottomNavyBarItem(
-          icon: Icon(Icons.favorite),
-          title: Text('Favorite'),
-        ),
-        BottomNavyBarItem(
           icon: Icon(Icons.settings),
           title: Text('Settings'),
         ),
@@ -103,8 +93,6 @@ class HomePage extends StatelessWidget {
     if (index == 0) {
       BlocProvider.of<TabBloc>(context).add(UpdateTab(AppTab.home));
     } else if (index == 1) {
-      BlocProvider.of<TabBloc>(context).add(UpdateTab(AppTab.favourites));
-    } else {
       BlocProvider.of<TabBloc>(context).add(UpdateTab(AppTab.settings));
     }
 
