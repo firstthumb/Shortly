@@ -15,9 +15,10 @@ const String SHORTEN_SERVICE =
     "https://us-central1-mainproject-226019.cloudfunctions.net/ShortlyService/v1";
 
 abstract class ShortenRemoteDataSource {
-  Future<ShortenModel> createShorten(String url);
+  Future<ShortenModel> createShorten(String url, String type);
 
-  Future<List<ShortenModel>> syncShortens(String userId,
+  Future<List<ShortenModel>> syncShortens(String userId, String email,
+      String name,
       List<ShortenModel> shortens, List<String> deleted);
 
   Future<List<ShortenModel>> getSyncShortens(String userId);
@@ -31,8 +32,8 @@ class ShortenRemoteDataSourceImpl implements ShortenRemoteDataSource {
   ShortenRemoteDataSourceImpl({@required this.client});
 
   @override
-  Future<ShortenModel> createShorten(String url) async {
-    final request = ShortenRequest(link: url);
+  Future<ShortenModel> createShorten(String url, String type) async {
+    final request = ShortenRequest(link: url, type: type);
     final payload = jsonEncode(request);
     logger.v("Payload => $payload");
 
@@ -60,11 +61,13 @@ class ShortenRemoteDataSourceImpl implements ShortenRemoteDataSource {
   }
 
   @override
-  Future<List<ShortenModel>> syncShortens(String userId,
+  Future<List<ShortenModel>> syncShortens(String userId, String email,
+      String name,
       List<ShortenModel> shortens, List<String> deleted) async {
     logger.v("Syncing => UserId : $userId");
 
-    final request = SyncRequest(shortens: shortens, deleted: deleted);
+    final request = SyncRequest(
+        shortens: shortens, deleted: deleted, email: email, name: name);
     final payload = jsonEncode(request);
     logger.v("Payload => $payload");
 

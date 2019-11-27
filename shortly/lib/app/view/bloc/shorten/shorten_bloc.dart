@@ -37,9 +37,9 @@ class ShortenBloc extends Bloc<ShortenEvent, ShortenState> {
       yield Loading();
       yield* _mapGetShortenListToState(await getShortenList(NoParams()));
     } else if (event is CreateShortenEvent) {
-      yield Loading();
       yield* _mapCreateShortenToState(
-          await addShorten(AddShortenParam(link: event.link)));
+          await addShorten(
+              AddShortenParam(link: event.link, type: event.type)));
       yield* _mapGetShortenListToState(await getShortenList(NoParams()));
     } else if (event is ToggleFavShortenEvent) {
       yield* _mapToggleFavShortenToState(
@@ -48,11 +48,9 @@ class ShortenBloc extends Bloc<ShortenEvent, ShortenState> {
       yield* _mapDeleteShortenToState(
           await deleteShorten(DeleteShortenParam(id: event.id)));
     } else if (event is SyncShortenEvent) {
-      if (!event.silent) {
-        yield Syncing();
-      }
       yield* _mapSyncShortenToState(
-          await syncShorten(SyncShortenUseCaseParam(userId: event.userId)));
+          await syncShorten(SyncShortenUseCaseParam(
+              userId: event.userId, email: event.email, name: event.name)));
     }
   }
 
@@ -61,7 +59,7 @@ class ShortenBloc extends Bloc<ShortenEvent, ShortenState> {
     logger.v("_mapSyncShortenToState");
     yield either.fold(
           (failure) => Error(message: "Sync shorten failed : $failure"),
-          (result) => Synced(shortens: result),
+          (result) => Loaded(shortens: result),
     );
   }
 

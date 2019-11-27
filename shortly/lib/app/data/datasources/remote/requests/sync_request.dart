@@ -13,10 +13,18 @@ class SyncRequest extends Equatable {
   @JsonKey(name: 'deleted')
   final List<String> deleted;
 
+  @JsonKey(name: 'email')
+  final String email;
+
+  @JsonKey(name: 'name')
+  final String name;
+
   SyncRequest({
     @required this.shortens,
     @required this.deleted,
-  }) : super([shortens, deleted]);
+    @required this.email,
+    @required this.name,
+  }) : super([shortens, deleted, email, name]);
 
   factory SyncRequest.fromJson(Map<String, dynamic> json) =>
       _$SyncRequestFromJson(json);

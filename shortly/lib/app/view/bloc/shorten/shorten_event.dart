@@ -15,11 +15,12 @@ class GetShortenListEvent extends ShortenEvent {
 
 class CreateShortenEvent extends ShortenEvent {
   final String link;
+  final String type;
 
-  CreateShortenEvent({this.link}) : super([link]);
+  CreateShortenEvent({this.link, this.type}) : super([link, type]);
 
   @override
-  String toString() => "CreateShortenEvent{ link: $link }";
+  String toString() => "CreateShortenEvent{ link: $link, type: $type }";
 }
 
 class DeleteShortenEvent extends ShortenEvent {
@@ -42,11 +43,14 @@ class ToggleFavShortenEvent extends ShortenEvent {
 
 class SyncShortenEvent extends ShortenEvent {
   final String userId;
+  final String email;
+  final String name;
   final bool silent;
 
-  SyncShortenEvent({this.userId, this.silent = false})
-      : super([userId, silent]);
+  SyncShortenEvent({this.userId, this.email, this.name, this.silent = false})
+      : super([userId, email, name, silent]);
 
   @override
-  String toString() => 'SyncShortenEvent{id: $userId, silent: $silent}';
+  String toString() =>
+      'SyncShortenEvent{id: $userId, email: $email, name: $name, silent: $silent}';
 }

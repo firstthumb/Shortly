@@ -14,14 +14,19 @@ class SyncShortenUseCase
   @override
   Future<Either<Failure, List<Shorten>>> call(
       SyncShortenUseCaseParam params) async {
-    return await repository.syncShortens(params.userId);
+    return await repository.syncShortens(
+        params.userId, params.email, params.name);
   }
 }
 
 class SyncShortenUseCaseParam extends Params {
   final String userId;
+  final String email;
+  final String name;
 
   SyncShortenUseCaseParam({
     @required this.userId,
-  }) : super([userId]);
+    @required this.email,
+    @required this.name,
+  }) : super([userId, email, name]);
 }

@@ -13,7 +13,8 @@ abstract class ShortenRepository {
 
   Future<Either<Failure, Shorten>> toggleFavShorten(String id);
 
-  Future<Either<Failure, Shorten>> createShorten(String url);
+  Future<Either<Failure, Shorten>> createShorten(String url, String type);
 
-  Future<Either<Failure, List<Shorten>>> syncShortens(String userId);
+  Future<Either<Failure, List<Shorten>>> syncShortens(String userId,
+      String email, String name);
 }

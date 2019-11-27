@@ -12,14 +12,16 @@ class AddShortenUseCase implements UseCase<Shorten, AddShortenParam> {
 
   @override
   Future<Either<Failure, Shorten>> call(AddShortenParam params) async {
-    return await repository.createShorten(params.link);
+    return await repository.createShorten(params.link, params.type);
   }
 }
 
 class AddShortenParam extends Params {
   final String link;
+  final String type;
 
   AddShortenParam({
     @required this.link,
-  }) : super([link]);
+    @required this.type,
+  }) : super([link, type]);
 }

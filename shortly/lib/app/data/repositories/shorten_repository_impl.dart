@@ -40,10 +40,11 @@ class ShortenRepositoryImpl implements ShortenRepository {
   }
 
   @override
-  Future<Either<Failure, Shorten>> createShorten(String url) async {
+  Future<Either<Failure, Shorten>> createShorten(String url,
+      String type) async {
     logger.v("Creating shorten => Url : $url");
     try {
-      final shortenModel = await remoteDataSource.createShorten(url);
+      final shortenModel = await remoteDataSource.createShorten(url, type);
       // TODO: Silently fail on cache
       final savedShortenModel = await localDataSource.saveShorten(shortenModel);
       return Right(savedShortenModel.toEntity());
@@ -92,14 +93,17 @@ class ShortenRepositoryImpl implements ShortenRepository {
   }
 
   @override
-  Future<Either<Failure, List<Shorten>>> syncShortens(String userId) async {
+  Future<Either<Failure, List<Shorten>>> syncShortens(String userId,
+      String email, String name) async {
     logger.v("Syncing shortens => UserId : $userId");
     try {
       final shortens = await localDataSource.getShortens();
       final deleted = await localDataSource.getDeletedShortens();
       final syncedShortens =
-      await remoteDataSource.syncShortens(userId, shortens, deleted);
+      await remoteDataSource.syncShortens(
+          userId, email, name, shortens, deleted);
       await localDataSource.clearDeletedShortens();
+      logger.v("Sync Result => $syncedShortens");
       return Right(syncedShortens.map((model) => model.toEntity()).toList()
         ..sort((a, b) => b.createdAt.compareTo(a.createdAt)));
     } catch (e) {

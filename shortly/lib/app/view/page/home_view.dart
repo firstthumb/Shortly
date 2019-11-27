@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:receive_sharing_intent/receive_sharing_intent.dart';
 import 'package:share/share.dart';
+import 'package:shared_preferences_settings/shared_preferences_settings.dart';
 import 'package:shortly/app/util/utils.dart';
 import 'package:shortly/app/view/bloc/blocs.dart';
 import 'package:shortly/app/view/widgets/loading_widget.dart';
@@ -21,7 +22,7 @@ class HomeView extends StatefulWidget {
 class _HomeViewState extends State<HomeView> {
   final logger = getLogger('HomeViewState');
 
-  final GlobalKey<AnimatedListState> listKey = GlobalKey<AnimatedListState>();
+//  final GlobalKey<AnimatedListState> listKey = GlobalKey<AnimatedListState>();
   final TextEditingController _controller = new TextEditingController();
 
   GoogleSignIn _googleSignIn;
@@ -218,17 +219,16 @@ class _HomeViewState extends State<HomeView> {
   }
 
   Widget _buildList(BuildContext context, List<Shorten> shortens) {
-    return AnimatedList(
-      key: listKey,
-      initialItemCount: shortens.length,
-      itemBuilder: (context, index, animation) {
-        return _buildItem(context, index, shortens, animation);
+    return ListView.builder(
+//      key: listKey,
+      itemCount: shortens.length,
+      itemBuilder: (context, index) {
+        return _buildItem(context, index, shortens);
       },
     );
   }
 
-  Widget _buildItem(BuildContext context, index, List<Shorten> shortens,
-      Animation<double> animation) {
+  Widget _buildItem(BuildContext context, index, List<Shorten> shortens) {
     final shorten = shortens[index];
 
     return ShortenItem(
@@ -261,12 +261,12 @@ class _HomeViewState extends State<HomeView> {
     BlocProvider.of<ShortenBloc>(context)
         .add(DeleteShortenEvent(id: shorten.id));
 
-    listKey.currentState.removeItem(
-      index,
-          (context, animation) =>
-          _buildRemovedItem(context, shorten, animation),
-      duration: Duration.zero,
-    );
+//    listKey.currentState.removeItem(
+//      index,
+//          (context, animation) =>
+//          _buildRemovedItem(context, shorten, animation),
+//      duration: Duration.zero,
+//    );
   }
 
   void _toggleFavShorten(Shorten shorten) {
@@ -292,9 +292,10 @@ class _HomeViewState extends State<HomeView> {
     Share.share(shorten.shortLink);
   }
 
-  void _shortenUrlAndCopyClipBoard(String inputUrl) {
+  void _shortenUrlAndCopyClipBoard(String inputUrl) async {
+    String type = await Settings().getString('provider', '1');
     BlocProvider.of<ShortenBloc>(context)
-        .add(CreateShortenEvent(link: inputUrl));
+        .add(CreateShortenEvent(link: inputUrl, type: type));
   }
 
   void _sync(bool silent) {
@@ -302,7 +303,10 @@ class _HomeViewState extends State<HomeView> {
     if (currentUser != null) {
       logger.v("Logged User : $currentUser");
       BlocProvider.of<ShortenBloc>(context)
-          .add(SyncShortenEvent(userId: currentUser.id, silent: silent));
+          .add(SyncShortenEvent(userId: currentUser.id,
+          email: currentUser.email,
+          name: currentUser.displayName,
+          silent: silent));
       final snackBar = SnackBar(
         content: Text('Synced'),
         duration: Duration(seconds: 1),
