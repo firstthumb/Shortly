@@ -14,6 +14,8 @@ import (
 type SyncRequest struct {
 	Shortens []entity.Shorten `json:"shortens"`
 	Deleted  []string         `json:"deleted"`
+	Email    string           `json:"email"`
+	Name     string           `json:"name"`
 }
 
 type SyncResponse struct {
@@ -46,7 +48,7 @@ func syncShorten(srv service.ShortenService) http.Handler {
 			return
 		}
 
-		shortens, err := srv.Sync(userId, request.Shortens, request.Deleted)
+		shortens, err := srv.Sync(userId, request.Email, request.Name, request.Shortens, request.Deleted)
 		if err != nil {
 			log.Errorf("Sync Shorten Handler => Could not call shorten service. %v", err)
 			errorJson, _ := json.Marshal(&ErrorResponse{Message: "Service Failed"})

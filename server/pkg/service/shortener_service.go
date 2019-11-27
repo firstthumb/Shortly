@@ -18,7 +18,7 @@ import (
 
 const BaseUrl = "https://firebasedynamiclinks.googleapis.com"
 const TikitokType = "https://tikitok.tk"
-const ShorturlType = "https://shorturl.tk"
+const ShorturlType = "https://shortli.tk"
 
 type ShortenServiceImpl struct {
 	client      *resty.Client
@@ -96,7 +96,7 @@ func (s *ShortenServiceImpl) GetSync(userId string) ([]entity.Shorten, error) {
 	return user.GetShortens()
 }
 
-func (s *ShortenServiceImpl) Sync(userId string, shortens []entity.Shorten, deleted []string) ([]entity.Shorten, error) {
+func (s *ShortenServiceImpl) Sync(userId, email, name string, shortens []entity.Shorten, deleted []string) ([]entity.Shorten, error) {
 	ctx := context.Background()
 	firestore, err := s.firebaseApp.Firestore(ctx)
 	if err != nil {
@@ -111,7 +111,9 @@ func (s *ShortenServiceImpl) Sync(userId string, shortens []entity.Shorten, dele
 	if err != nil {
 		log.Infof("Creating new entry for User : %s", userId)
 		user = &entity.User{
-			Id: userId,
+			Id:    userId,
+			Name:  name,
+			Email: email,
 		}
 		err = fsc.NewRequest().CreateEntities(ctx, user)()
 		if err != nil {

@@ -37,7 +37,17 @@ func shortenIndex(srv service.ShortenService) http.Handler {
 			return
 		}
 
-		resp, err := srv.Shorten(service.TIKITOK, request.Link)
+		shortenType := service.TIKITOK
+		switch request.Type {
+		case "1":
+			shortenType = service.TIKITOK
+		case "2":
+			shortenType = service.SHORTURL
+		default:
+			shortenType = service.TIKITOK
+		}
+
+		resp, err := srv.Shorten(shortenType, request.Link)
 		if err != nil {
 			log.Errorf("Shorten Handler => Could not call shorten service. %v", err)
 			http.Error(w, err.Error(), 500)

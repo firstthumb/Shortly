@@ -16,6 +16,8 @@ type Shorten struct {
 
 type User struct {
 	Id        string    `json:"id"`
+	Email     string    `json:"email"`
+	Name      string    `json:"name"`
 	Shortens  string    `json:"shortens"` // base64 encoded string
 	UpdatedAt time.Time `json:"updated_at"`
 }
